@@ -1,0 +1,49 @@
+check-frequency: 1200
+pay-command: "cmi money give {user} {amount}"
+take-command: "cmi money take-command: {user} {amount}"
+
+messages:
+  prefix: "<bold><red>U</red><white>L</white> Trade <dark_gray>» </dark_gray></bold>"
+  reload: "<green>Plugin reloaded.</green>"
+  currency: "G"
+
+  save-error: "<red>Error while saving changes."
+  save-success: "<dark_green>All changes saved."
+  file-delete-success: "<dark_green>File deleted succesfully."
+  file-delete-error: "<red>Error while trying to delete file."
+
+  tradebook:
+    contractor: "Contractor"
+    payment: "Payment"
+    timelimit: "Time limit"
+    penalty: "Contract Penalty"
+    required-items-line: "{material} <dark_aqua> x{amount}</dark_aqua>\n\n"
+  
+  tradepoint:
+    on-cooldown: "<gray>You recently picked up an order here. You can only get one every {cooldown}.</gray>"
+    order-started: "<green>You picked up an order! You will have {remaining} to drop off the required items at the chest to get your payment.</green>"
+    order-failed: "<red>Your order {order-no} was not fulfilled in time. Your client has been informed.</red>"
+
+  checkorder:
+    success: "<green>All required items are in your inventory</green>"
+    missing: "<red>Your inventory is still missing the following items: {missing}</red>"
+    complete: "<green>You completed the order!</green>"
+
+  usage:
+    create-tradepoint: "<gray>Usage: /uta tradepoint create <name></gray>"
+    remove-tradepoint: "<gray>Usage: /uta tradepoint remove</gray>"
+    restock-tradepoint: "<gray>Usage: /uta tradepoint restock</gray>"
+    tradepoint-set: "<gray>Usage: /uta tradepoint set <field> <value></gray>"
+    tradepoint-info: "<gray>Usage: /uta tradepoint info"
+    addtemplate-tradepoint: "<gray>Usage: /uta tradepoint addtemplate <name></gray>"
+    removetemplate-tradepoint: "<gray>Usage: /uta tradepoint removetemplate <name></gray>"
+    create-dropoffpoint: "<gray>Usage: /uta dropoffpoint create <trade_point_name></gray>"
+    remove-dropoffpoint: "<gray>Usage: /uta dropoffpoint remove</gray>"
+
+  errors:
+    no-close-tradepoint: "<red>You must be near a trade point.</red>"
+    no-close-dropoffpoint: "<red>You must be near a dropoff point.</red>"
+    unknown-tradepoint: "<red>Unknown trade point.</red>"
+    order-expired: "<red>This order has already expired. Your book has been returned to the trader.</red>"
+    must-hold-trade-book: "<red>You must hold a trade order book in your main hand.</red>"
+    wrong-tradepoint: "<red>You must drop off your order at the trader where you received it.</red>"

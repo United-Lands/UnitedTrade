@@ -1,0 +1,18 @@
+name: UnitedTrade
+version: 1.0
+main: org.unitedlands.trade.UnitedTrade
+api-version: 1.18
+description: A custom United Lands plugin that for NPC trades.
+author: Theriel_
+depend: [ UnitedLib ]
+permissions:
+  united.trade.admin:
+    default: op
+commands:
+  unitedtradeadmin:
+    description: Trade Admin commands.
+    permission: united.trade.admin
+    aliases: [uta]
+  checkorder:
+    description: Command to check the inventory against the currently held order book
+    aliases: [cto]

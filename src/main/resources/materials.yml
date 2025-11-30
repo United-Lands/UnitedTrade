@@ -1,0 +1,246 @@
+wood:
+  common:
+    raw:
+      price: 10
+      materials:
+        - ACACIA_WOOD
+        - BAMBOO_BLOCK
+        - BIRCH_WOOD
+        - CHERRY_WOOD
+        - DARK_OAK_WOOD
+        - JUNGLE_WOOD
+        - OAK_WOOD
+        - SPRUCE_WOOD
+        - STRIPPED_ACACIA_WOOD
+        - STRIPPED_BIRCH_WOOD
+        - STRIPPED_CHERRY_WOOD
+        - STRIPPED_DARK_OAK_WOOD
+        - STRIPPED_JUNGLE_WOOD
+        - STRIPPED_OAK_WOOD
+        - STRIPPED_SPRUCE_WOOD
+        - ACACIA_LOG
+        - BIRCH_LOG
+        - CHERRY_LOG
+        - DARK_OAK_LOG
+        - JUNGLE_LOG
+        - OAK_LOG
+        - SPRUCE_LOG
+        - STRIPPED_ACACIA_LOG
+        - STRIPPED_BIRCH_LOG
+        - STRIPPED_CHERRY_LOG
+        - STRIPPED_DARK_OAK_LOG
+        - STRIPPED_JUNGLE_LOG
+        - STRIPPED_OAK_LOG
+        - STRIPPED_SPRUCE_LOG
+    planks:
+      price: 10
+      materials:
+        - ACACIA_PLANKS
+        - BAMBOO_PLANKS
+        - BAMBOO_MOSAIC
+        - BIRCH_PLANKS
+        - CHERRY_PLANKS
+        - DARK_OAK_PLANKS
+        - JUNGLE_PLANKS
+        - OAK_PLANKS
+        - SPRUCE_PLANKS
+    fences:
+      price: 10
+      materials:
+        - ACACIA_FENCE
+        - ACACIA_FENCE_GATE
+        - BAMBOO_FENCE
+        - BAMBOO_FENCE_GATE
+        - BIRCH_FENCE
+        - BIRCH_FENCE_GATE
+        - CHERRY_FENCE
+        - CHERRY_FENCE_GATE
+        - DARK_OAK_FENCE
+        - DARK_OAK_FENCE_GATE
+        - JUNGLE_FENCE
+        - JUNGLE_FENCE_GATE
+        - OAK_FENCE
+        - OAK_FENCE_GATE
+        - SPRUCE_FENCE
+        - SPRUCE_FENCE_GATE
+    parts:
+      price: 10
+      materials:
+        - ACACIA_STAIRS
+        - BAMBOO_MOSAIC_STAIRS
+        - BAMBOO_STAIRS
+        - BIRCH_STAIRS
+        - CHERRY_STAIRS
+        - DARK_OAK_STAIRS
+        - JUNGLE_STAIRS
+        - OAK_STAIRS
+        - SPRUCE_STAIRS
+        - ACACIA_SLAB
+        - BAMBOO_MOSAIC_SLAB
+        - BAMBOO_SLAB
+        - BIRCH_SLAB
+        - CHERRY_SLAB
+        - DARK_OAK_SLAB
+        - JUNGLE_SLAB
+        - OAK_SLAB
+        - PALE_OAK_SLAB
+        - SPRUCE_SLAB
+    trapdoors:
+      price: 10
+      materials:
+        - ACACIA_TRAPDOOR
+        - BAMBOO_TRAPDOOR
+        - BIRCH_TRAPDOOR
+        - CHERRY_TRAPDOOR
+        - DARK_OAK_TRAPDOOR
+        - JUNGLE_TRAPDOOR
+        - OAK_TRAPDOOR
+        - SPRUCE_TRAPDOOR
+    signs:
+      price: 10
+      materials:
+        - ACACIA_HANGING_SIGN
+        - ACACIA_SIGN
+        - BAMBOO_HANGING_SIGN
+        - BAMBOO_SIGN
+        - BIRCH_HANGING_SIGN
+        - BIRCH_SIGN
+        - CHERRY_HANGING_SIGN
+        - CHERRY_SIGN
+        - DARK_OAK_HANGING_SIGN
+        - DARK_OAK_SIGN
+        - JUNGLE_HANGING_SIGN
+        - JUNGLE_SIGN
+        - OAK_HANGING_SIGN
+        - OAK_SIGN
+        - SPRUCE_HANGING_SIGN
+        - SPRUCE_SIGN
+    doors:
+      price: 10
+      materials:
+        - ACACIA_DOOR
+        - BAMBOO_DOOR
+        - BIRCH_DOOR
+        - CHERRY_DOOR
+        - DARK_OAK_DOOR
+        - DARK_OAK_TRAPDOOR
+        - JUNGLE_DOOR
+        - OAK_DOOR
+        - SPRUCE_DOOR
+    shelves:
+      price: 10
+      materials:
+        - ACACIA_SHELF
+        - BAMBOO_SHELF
+        - BIRCH_SHELF
+        - CHERRY_SHELF
+        - DARK_OAK_SHELF
+        - JUNGLE_SHELF
+        - OAK_SHELF
+        - SPRUCE_SHELF
+  rare:
+    raw:
+      price: 10
+      materials:
+        - MANGROVE_WOOD
+        - PALE_OAK_WOOD
+        - STRIPPED_MANGROVE_WOOD
+        - STRIPPED_PALE_OAK_WOOD
+        - MANGROVE_LOG
+        - PALE_OAK_LOG
+        - STRIPPED_MANGROVE_LOG
+        - STRIPPED_PALE_OAK_LOG
+    planks:
+      price: 10
+      materials:
+        - MANGROVE_PLANKS
+        - PALE_OAK_PLANKS
+    fences:
+      price: 10
+      materials:
+        - MANGROVE_FENCE
+        - MANGROVE_FENCE_GATE
+        - PALE_OAK_FENCE
+        - PALE_OAK_FENCE_GATE
+    parts:
+      price: 10
+      materials:
+        - MANGROVE_STAIRS
+        - PALE_OAK_STAIRS
+        - MANGROVE_SLAB
+        - PALE_OAK_SLAB
+    trapdoors:
+      price: 10
+      materials:
+        - MANGROVE_TRAPDOOR
+        - PALE_OAK_TRAPDOOR
+    signs:
+      price: 10
+      materials:
+        - MANGROVE_HANGING_SIGN
+        - MANGROVE_SIGN
+        - PALE_OAK_HANGING_SIGN
+        - PALE_OAK_SIGN
+    doors:
+      price: 10
+      materials:
+        - MANGROVE_DOOR
+        - PALE_OAK_DOOR
+    shelves:
+      price: 10
+      materials:
+        - MANGROVE_SHELF
+        - PALE_OAK_SHELF
+  exotic:
+    raw:
+      price: 10
+      materials:
+        - CRIMSON_HYPHAE
+        - STRIPPED_CRIMSON_HYPHAE
+        - STRIPPED_WARPED_HYPHAE
+        - WARPED_HYPHAE
+        - CRIMSON_STEM
+        - STRIPPED_CRIMSON_STEM
+        - STRIPPED_WARPED_STEM
+        - WARPED_STEM
+    planks:
+      price: 10
+      materials:
+        - WARPED_PLANKS
+        - CRIMSON_PLANKS
+    fences:
+      price: 10
+      materials:
+        - CRIMSON_FENCE
+        - CRIMSON_FENCE_GATE
+        - WARPED_FENCE
+        - WARPED_FENCE_GATE
+    parts:
+      price: 10
+      materials:
+        - CRIMSON_STAIRS
+        - WARPED_STAIRS
+        - CRIMSON_SLAB
+        - WARPED_SLAB
+    trapdoors:
+      price: 10
+      materials:
+        - CRIMSON_TRAPDOOR
+        - WARPED_TRAPDOOR
+    signs:
+      price: 10
+      materials:
+        - CRIMSON_HANGING_SIGN
+        - CRIMSON_SIGN
+        - WARPED_HANGING_SIGN
+        - WARPED_SIGN
+    doors:
+      price: 10
+      materials:
+        - CRIMSON_DOOR
+        - WARPED_DOOR
+    shelves:
+      price: 10
+      materials:
+        - CRIMSON_SHELF
+        - WARPED_SHELF
