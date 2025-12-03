@@ -6,24 +6,24 @@ import java.util.Random;
 
 public class OrderTemplateItemGroup {
 
-    private List<String> materialGroups = new ArrayList<>();
+    private List<String> materials = new ArrayList<>();
     private int unitSize;
     private int minUnits;
     private int maxUnits;
 
-    public List<String> getMaterialGroups() {
-        return materialGroups;
+    public List<String> getMaterials() {
+        return materials;
     }
 
     public String getRandomMaterialGroup() {
         var rnd = new Random();
-        if (materialGroups == null || materialGroups.isEmpty())
+        if (materials == null || materials.isEmpty())
             return null;
-        return materialGroups.get(rnd.nextInt(0, materialGroups.size()));
+        return materials.get(rnd.nextInt(0, materials.size()));
     }
 
-    public void setMaterialGroups(List<String> materials) {
-        this.materialGroups = materials;
+    public void setMaterials(List<String> materials) {
+        this.materials = materials;
     }
 
     public int getUnitSize() {

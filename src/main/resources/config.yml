@@ -17,6 +17,7 @@ messages:
     payment: "Payment"
     timelimit: "Time limit"
     penalty: "Contract Penalty"
+    turn-page: "<bold><dark_gray>Turn page »</dark_gray></bold>"
     required-items-line: "{material} <dark_aqua> x{amount}</dark_aqua>\n\n"
   
   tradepoint:

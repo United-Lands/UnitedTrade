@@ -30,7 +30,7 @@ public class AdminReloadCommand extends BaseCommandHandler<UnitedTrade>{
         Logger.log("Reloading configs...", "UnitedTrade");
 
         plugin.reloadConfig();
-        plugin.getMaterialConfig().reload();
+        plugin.getPriceConfig().reload();
         
         plugin.getMessageProvider().reload(plugin.getConfig());
 

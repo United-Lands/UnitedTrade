@@ -65,7 +65,7 @@ public class OrderTemplateManager {
                         var templateItem = templateItemSection.getConfigurationSection(templateItemKey);
 
                         OrderTemplateItemGroup item = new OrderTemplateItemGroup();
-                        item.setMaterialGroups(templateItem.getStringList("materials"));
+                        item.setMaterials(templateItem.getStringList("materials"));
                         item.setUnitSize(templateItem.getInt("unitsize", 0));
 
                         var unitsize = templateItem.getString("units");
@@ -106,22 +106,23 @@ public class OrderTemplateManager {
 
         var order = new Order();
 
-        var materialConfig = UnitedTrade.getInstance().getMaterialConfig().get();
+        var priceConfig = UnitedTrade.getInstance().getPriceConfig().get();
+        var globalAdjustment = priceConfig.getDouble("global-adjustment", 1d);
 
         var price = 0d;
         for (var item : template.getItemGroups()) {
 
-            var materialGroup = item.getRandomMaterialGroup();
             var amount = item.getRandomAmount();
-            var pricePerUnit = materialConfig.getDouble(materialGroup + ".price");
-            var materials = materialConfig.getStringList(materialGroup + ".materials");
+            //var pricePerUnit = priceConfig.getDouble(materialGroup + ".price");
+            //var materials = priceConfig.getStringList(materialGroup + ".materials");
+
             var rnd = new Random();
-            var materialName = materials.get(rnd.nextInt(0, materials.size()));
+            var materialName = item.getMaterials().get(rnd.nextInt(0, item.getMaterials().size()));
 
             var itemStack = UnitedLib.getInstance().getItemFactory().getItemStack(materialName, amount);
             if (itemStack != null) {
                 order.getRequiredItems().add(itemStack);
-                price += (amount * pricePerUnit);
+                price += priceConfig.getDouble("materials." + materialName, 0d) * globalAdjustment * amount;
             }
         }
 

@@ -30,7 +30,7 @@ public class UnitedTrade extends JavaPlugin {
     private OrderTemplateManager orderTemplateManager;
     private OrderTracker orderTracker;
 
-    private ConfigFile materialConfig;
+    private ConfigFile priceConfig;
 
     @Override
     public void onEnable() {
@@ -54,7 +54,7 @@ public class UnitedTrade extends JavaPlugin {
     }
 
     private void loadConfigs() {
-        materialConfig = new ConfigFile(this, "materials.yml");
+        priceConfig = new ConfigFile(this, "prices.yml");
     }
 
     private void registerEvents() {
@@ -113,8 +113,8 @@ public class UnitedTrade extends JavaPlugin {
         return orderTracker;
     }
 
-    public ConfigFile getMaterialConfig() {
-        return materialConfig;
+    public ConfigFile getPriceConfig() {
+        return priceConfig;
     }
 
     @Override

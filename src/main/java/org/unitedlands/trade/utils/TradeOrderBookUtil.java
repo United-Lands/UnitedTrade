@@ -40,17 +40,18 @@ public class TradeOrderBookUtil {
         String page1Str = "";
         page1Str += order.getDescription() + "\n\n";
         page1Str += "<bold>" + messageProvider.get("messages.tradebook.contractor") + "</bold>:\n" + order.getCustomer()
-                + "\n\n";
+                + "\n";
         page1Str += "<bold>" + messageProvider.get("messages.tradebook.payment") + "</bold>:\n<dark_green>"
                 + String.format("%,.2f", order.getPrice()) + messageProvider.get("messages.currency")
-                + "</dark_green>\n\n";
+                + "</dark_green>\n";
         page1Str += "<bold>" + messageProvider.get("messages.tradebook.timelimit") + "</bold>:\n"
-                + Formatter.formatDuration(order.getTimelimit()) + "\n\n";
+                + Formatter.formatDuration(order.getTimelimit()) + "\n";
         if (order.getPenalty() != 0) {
             page1Str += "<bold>" + messageProvider.get("messages.tradebook.penalty") + "</bold>:\n<red>"
                     + String.format("%,.2f", order.getPenalty()) + messageProvider.get("messages.currency")
-                    + "</red>";
+                    + "</red>\n\n";
         }
+        page1Str += messageProvider.get("messages.tradebook.turn-page");
 
         Component page1 = MiniMessage.miniMessage().deserialize(page1Str);
         bookMeta.addPages(page1);
@@ -242,9 +243,11 @@ public class TradeOrderBookUtil {
     public static List<ItemStack> getMissingItems(Player player, List<ItemStack> required) {
         List<ItemStack> missing = new ArrayList<>();
 
-        Map<Material, Integer> needed = new HashMap<>();
+        var itemFactory = UnitedLib.getInstance().getItemFactory();
+
+        Map<String, Integer> needed = new HashMap<>();
         for (ItemStack req : required) {
-            needed.merge(req.getType(), req.getAmount(), Integer::sum);
+            needed.merge(itemFactory.getFilterName(req), req.getAmount(), Integer::sum);
         }
 
         // Count what the player currently has
@@ -252,7 +255,7 @@ public class TradeOrderBookUtil {
             if (item == null || item.getType().isAir())
                 continue;
 
-            Material type = item.getType();
+            String type = itemFactory.getFilterName(item);
             if (!needed.containsKey(type))
                 continue;
 
@@ -267,8 +270,8 @@ public class TradeOrderBookUtil {
             }
         }
 
-        for (Map.Entry<Material, Integer> entry : needed.entrySet()) {
-            missing.add(new ItemStack(entry.getKey(), entry.getValue()));
+        for (Map.Entry<String, Integer> entry : needed.entrySet()) {
+            missing.add(new ItemStack(itemFactory.getItemStack(entry.getKey(), entry.getValue())));
         }
 
         return missing;
