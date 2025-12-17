@@ -59,6 +59,13 @@ public class TradePoint {
     @Expose
     private Map<UUID, Long> playerPickupCooldowns = new HashMap<>();
 
+    @Expose
+    @Info
+    private String requiredPermissions;
+    @Expose
+    @Info
+    private String blacklistedPermissions;
+
     public TradePoint() {
 
     }
@@ -154,6 +161,22 @@ public class TradePoint {
 
     public void setContractPenalty(double contractPenalty) {
         this.contractPenalty = contractPenalty;
+    }
+
+    public String getRequiredPermissions() {
+        return requiredPermissions;
+    }
+
+    public void setRequiredPermissions(String requiredPermissions) {
+        this.requiredPermissions = requiredPermissions;
+    }
+
+    public String getBlacklistedPermissions() {
+        return blacklistedPermissions;
+    }
+
+    public void setBlacklistedPermissions(String blacklistedPermissions) {
+        this.blacklistedPermissions = blacklistedPermissions;
     }
 
     public void spawnLectern() {

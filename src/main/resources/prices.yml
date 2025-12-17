@@ -216,29 +216,191 @@ materials:
   #----------
 
   WHITE_WOOL: 1.5
-
-  # Common grayscale dyes
   LIGHT_GRAY_WOOL: 1.6
   GRAY_WOOL: 1.6
-
-  # Common garden dyes
   YELLOW_WOOL: 1.7
   ORANGE_WOOL: 1.7
   PINK_WOOL: 1.7
   LIME_WOOL: 1.7
+  RED_WOOL: 1.9        
+  GREEN_WOOL: 2.0      
+  PURPLE_WOOL: 2.0
+  CYAN_WOOL: 2.0
+  MAGENTA_WOOL: 2.3
+  BLUE_WOOL: 2.3
+  BROWN_WOOL: 2.6
+  BLACK_WOOL: 3.0
 
-  # Slightly effortful dyes
-  RED_WOOL: 1.9        # poppies or roses
-  GREEN_WOOL: 2.0      # cactus smelting
-  PURPLE_WOOL: 2.0     # red + blue combo
-  CYAN_WOOL: 2.0       # blue + green combo
+  # ---------
+  #   Terracotta
+  #----------
 
-  # Moderately rare dyes
-  MAGENTA_WOOL: 2.3    # red + blue + pink/lilac
-  BLUE_WOOL: 2.3       # lapis requirement
+  TERRACOTTA: 2.0
+  LIGHT_GRAY_TERRACOTTA: 2.1
+  GRAY_TERRACOTTA: 2.1
+  YELLOW_TERRACOTTA: 2.2
+  ORANGE_TERRACOTTA: 2.2
+  PINK_TERRACOTTA: 2.2
+  LIME_TERRACOTTA: 2.2
+  RED_TERRACOTTA: 2.3
+  PURPLE_TERRACOTTA: 2.3
+  CYAN_TERRACOTTA: 2.3
+  GREEN_TERRACOTTA: 2.4
+  BLUE_TERRACOTTA: 2.5
+  MAGENTA_TERRACOTTA: 2.5
+  BROWN_TERRACOTTA: 2.7
+  BLACK_TERRACOTTA: 3.0
+  WHITE_TERRACOTTA: 2.1
 
-  # Biome-gated dyes
-  BROWN_WOOL: 2.6      # cocoa beans (jungle)
+  # ---------
+  #   Cobblestone, Stone, Diorite, Granite
+  #----------
 
-  # Rare due to mob drops
-  BLACK_WOOL: 3.0      # ink sacs (squid)
+  # BASE MATERIALS
+  COBBLESTONE: 0.5
+  STONE: 0.7
+  DIORITE: 0.6
+  GRANITE: 0.6
+  ANDESITE: 0.6
+
+  # POLISHED NATURAL STONES (4-to-4 crafting)
+  POLISHED_DIORITE: 0.7
+  POLISHED_GRANITE: 0.7
+  POLISHED_ANDESITE: 0.7
+
+  # COBBLESTONE VARIANTS
+  COBBLESTONE_SLAB: 0.25
+  COBBLESTONE_STAIRS: 0.75
+  COBBLESTONE_WALL: 0.8
+  MOSSY_COBBLESTONE: 0.8      
+  MOSSY_COBBLESTONE_WALL: 1.0
+
+  # STONE BLOCK FAMILY
+  STONE_SLAB: 0.35
+  STONE_STAIRS: 1.0
+  STONE_BUTTON: 0.7
+  STONE_PRESSURE_PLATE: 1.4
+
+  # STONE BRICKS FAMILY (crafted from stone)
+  STONE_BRICKS: 0.9
+  STONE_BRICK_SLAB: 0.45
+  STONE_BRICK_STAIRS: 1.2
+  STONE_BRICK_WALL: 1.3
+  CRACKED_STONE_BRICKS: 1.0
+  CHISELED_STONE_BRICKS: 1.0
+  MOSSY_STONE_BRICKS: 1.2
+  MOSSY_STONE_BRICK_WALL: 1.4
+
+  # DIORITE VARIANTS
+  DIORITE_SLAB: 0.3
+  DIORITE_STAIRS: 0.9
+  DIORITE_WALL: 1.0
+  POLISHED_DIORITE_SLAB: 0.35
+  POLISHED_DIORITE_STAIRS: 1.0
+  POLISHED_DIORITE_WALL: 1.1
+
+  # GRANITE VARIANTS
+  GRANITE_SLAB: 0.3
+  GRANITE_STAIRS: 0.9
+  GRANITE_WALL: 1.0
+  POLISHED_GRANITE_SLAB: 0.35
+  POLISHED_GRANITE_STAIRS: 1.0
+  POLISHED_GRANITE_WALL: 1.1
+
+  # ANDESITE VARIANTS
+  ANDESITE_SLAB: 0.3
+  ANDESITE_STAIRS: 0.9
+  ANDESITE_WALL: 1.0
+  POLISHED_ANDESITE_SLAB: 0.35
+  POLISHED_ANDESITE_STAIRS: 1.0
+  POLISHED_ANDESITE_WALL: 1.1
+
+
+
+
+# +------------------------------------+
+# |      United Lands custom items     |
+# +------------------------------------+
+
+# Vegetables and fruits
+
+  "food:onion" : 1.0
+  "food:tomato" : 1.0
+  "food:lettuce" : 1.0
+  "food:bell_pepper" : 1.0
+  "food:celery" : 1.0
+  "food:soy_beans" : 1.0
+  "food:cucumber" : 1.0
+  "food:broccoli" : 1.0
+  "food:garlic" : 1.0
+  "food:peas" : 1.0
+  "food:chili_pepper" : 1.0
+  "food:pear" : 1.0
+  "food:orange" : 1.0
+  "food:strawberry" : 1.0
+  "food:blueberry" : 1.0
+  "food:raspberry" : 1.0
+  "food:kiwi" : 1.0
+  "food:grapes" : 1.0
+  "food:pineapple" : 1.0
+  "food:banana" : 1.0
+  "food:cherry" : 1.0
+  "food:lemon" : 1.0
+  "food:avocado" : 1.0
+  "food:coffee_bean" : 1.0
+  "food:olive" : 1.0
+  "food:mango" : 1.0
+  "food:creeper_peppercorn" : 25.0
+
+# Fish
+
+  "fish:shark" : 50.0
+  "fish:cooked_shark" : 60.0
+  "fish:crab" : 50.0
+  "fish:cooked_crab" : 60.0
+  "fish:lobster" : 50.0
+  "fish:cooked_lobster" : 60.0
+  "fish:shrimp" : 50.0
+  "fish:cooked_shrimp" : 60.0
+  "fish:tuna" : 50.0
+  "fish:cooked_tuna" : 60.0
+  "fish:swordfish" : 50.0
+  "fish:cooked_swordfish" : 60.0
+  "fish:clam" : 50.0
+  "fish:squid" : 25.0
+  "fish:calamari" : 15.0
+  "food:cooked_crab_claw" : 65.0
+  "food:cooked_lobster_tail" : 65.0
+
+# Ingredients
+
+  "food:pickles" : 9.0
+  "food:pickled_onions" : 9.0
+  "food:gelatin" : 2.0
+  "food:yoghurt" : 90.0
+  "food:cheese" : 45.0
+  "food:smoked_cheese" : 50.0
+  "food:fruit_jam" : 6.0
+  "food:tofu" : 5.0
+  "food:peanut_butter" : 5.0
+  "food:chocolate" : 15.0
+  "food:gravy" : 6.0
+  "food:cooking_oil" : 2.0
+  "food:olive_oil" : 6.0
+  "food:cut_potato" : 2.0
+  "food:vinegar" : 3.0
+  "food:butter" : 10.0
+  "food:flour" : 2.0
+  "food:dough" : 6.0
+  "food:salt" : 1.0
+  "food:raw_pasta" : 4.0
+
+# Bread
+
+  "food:slice_of_bread" : 0.5
+  "food:toast" : 0.5
+  "food:croissant" : 18.0
+  "food:baguette" : 18.0
+  "food:pretzel" : 25.0
+  "food:tortilla" : 9.0
+

@@ -51,33 +51,66 @@ public class LecternListener implements Listener {
                     messageProvider.get("messages.prefix"));
             event.setCancelled(true);
             return;
-        } else {
+        }
 
-            var preTakeEvent = new TradeOrderBookPreTakeEvent(player, tradePoint);
-            preTakeEvent.callEvent();
+        if (tradePoint.getRequiredPermissions() != null) {
+            var permissionsArray = tradePoint.getRequiredPermissions().split(",");
+            boolean playerHasAllRequiredPermissions = true;
+            for (var permString : permissionsArray) {
+                var perm = permString.trim();
+                if (!player.hasPermission(perm))
+                    playerHasAllRequiredPermissions = false;
+            }
 
-            // Some plugin may cancel the event, e.g. due to lack of reputation or wars,
-            // preventing players from taking order from this trade point
-            if (preTakeEvent.isCancelled()) {
+            if (!playerHasAllRequiredPermissions) {
+                Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.permission-error"), null,
+                        messageProvider.get("messages.prefix"));
                 event.setCancelled(true);
                 return;
             }
-
-            var book = event.getBook();
-
-            var orderId = TradeOrderBookUtil.getOrderId(book);
-            var orderNo = TradeOrderBookUtil.getOrderNo(book);
-            var timelimit = TradeOrderBookUtil.getTimelimit(book);
-            var penalty = TradeOrderBookUtil.getPenalty(book);
-
-            var orderTrackerItem = new OrderTrackerItem(orderId, orderNo, tradePoint.getId(), player.getUniqueId(),
-                    penalty, System.currentTimeMillis() + timelimit);
-            plugin.getOrderTracker().addTrackedOrder(orderTrackerItem);
-
-            Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.order-started"),
-                    Map.of("remaining", Formatter.formatDuration(timelimit)), messageProvider.get("messages.prefix"));
-            tradePoint.addPlayerPickupCooldown(player.getUniqueId());
         }
+
+        if (tradePoint.getBlacklistedPermissions() != null) {
+            var permissionsArray = tradePoint.getBlacklistedPermissions().split(",");
+            boolean playerHasBlacklistedPermission = false;
+            for (var permString : permissionsArray) {
+                var perm = permString.trim();
+                if (player.hasPermission(perm))
+                    playerHasBlacklistedPermission = true;
+            }
+
+            if (playerHasBlacklistedPermission) {
+                Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.permission-error"), null,
+                        messageProvider.get("messages.prefix"));
+                event.setCancelled(true);
+                return;
+            }
+        }
+
+        var preTakeEvent = new TradeOrderBookPreTakeEvent(player, tradePoint);
+        preTakeEvent.callEvent();
+
+        // Some plugin may cancel the event, e.g. due to lack of reputation or wars,
+        // preventing players from taking order from this trade point
+        if (preTakeEvent.isCancelled()) {
+            event.setCancelled(true);
+            return;
+        }
+
+        var book = event.getBook();
+
+        var orderId = TradeOrderBookUtil.getOrderId(book);
+        var orderNo = TradeOrderBookUtil.getOrderNo(book);
+        var timelimit = TradeOrderBookUtil.getTimelimit(book);
+        var penalty = TradeOrderBookUtil.getPenalty(book);
+
+        var orderTrackerItem = new OrderTrackerItem(orderId, orderNo, tradePoint.getId(), player.getUniqueId(),
+                penalty, System.currentTimeMillis() + timelimit);
+        plugin.getOrderTracker().addTrackedOrder(orderTrackerItem);
+
+        Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.order-started"),
+                Map.of("remaining", Formatter.formatDuration(timelimit)), messageProvider.get("messages.prefix"));
+        tradePoint.addPlayerPickupCooldown(player.getUniqueId());
 
     }
 

@@ -117,14 +117,38 @@ public class OrderTracker {
     }
 
     public void handleCompletedOrder(Player player, UUID tradepointId, String orderNo, double payment) {
+
+        TradePoint tradepoint = plugin.getTradePointManager().getTradePoint(tradepointId);
+        var event = new TradeOrderCompletedEvent(player, tradepoint, payment);
+        event.callEvent();
+
+        if (event.isCancelled())
+            return;
+
+        var bonus = event.getBonus();
+        if (bonus != 0) {
+
+            if (bonus > 0) {
+                Messenger.sendMessage(player, messageProvider.get("messages.checkorder.bonus"),
+                        Map.of("bonus", String.format("%,.2f", bonus) + messageProvider.get("messages.currency"),
+                                "reason", event.getBonusReason()),
+                        messageProvider.get("messages.prefix"));
+            } else {
+                                Messenger.sendMessage(player, messageProvider.get("messages.checkorder.malus"),
+                        Map.of("bonus", String.format("%,.2f", bonus) + messageProvider.get("messages.currency"),
+                                "reason", event.getBonusReason()),
+                        messageProvider.get("messages.prefix"));
+            }
+        }
+
+        var totalPayment = event.getPayment() + event.getBonus();
+
         if (payment != 0) {
             var cmd = UnitedTrade.getInstance().getConfig().getString("pay-command");
             cmd = cmd.replace("{user}", player.getName());
-            cmd = cmd.replace("{amount}", payment + "");
+            cmd = cmd.replace("{amount}", totalPayment + "");
             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), cmd);
         }
-        TradePoint tradepoint = plugin.getTradePointManager().getTradePoint(tradepointId);
-        (new TradeOrderCompletedEvent(player, tradepoint, payment)).callEvent();
     }
 
     public boolean loadTrackedOrders() {

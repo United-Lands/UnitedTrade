@@ -49,7 +49,7 @@ public class TradeOrderBookUtil {
         if (order.getPenalty() != 0) {
             page1Str += "<bold>" + messageProvider.get("messages.tradebook.penalty") + "</bold>:\n<red>"
                     + String.format("%,.2f", order.getPenalty()) + messageProvider.get("messages.currency")
-                    + "</red>\n\n";
+                    + "</red>\n";
         }
         page1Str += messageProvider.get("messages.tradebook.turn-page");
 

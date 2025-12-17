@@ -22,6 +22,7 @@ messages:
   
   tradepoint:
     on-cooldown: "<gray>You recently picked up an order here. You can only get one every {cooldown}.</gray>"
+    permission-error: "<red>You don't meet the requirements for using this trade point!</red>"
     order-started: "<green>You picked up an order! You will have {remaining} to drop off the required items at the chest to get your payment.</green>"
     order-failed: "<red>Your order {order-no} was not fulfilled in time. Your client has been informed.</red>"
 
@@ -29,6 +30,8 @@ messages:
     success: "<green>All required items are in your inventory</green>"
     missing: "<red>Your inventory is still missing the following items: {missing}</red>"
     complete: "<green>You completed the order!</green>"
+    bonus: "<green>You received a bonus payment of {bonus} for: {reason}</green>"
+    malus: "<red>You received a payment reduction of {bonus} for: {reason}</red>"
 
   usage:
     create-tradepoint: "<gray>Usage: /uta tradepoint create <name></gray>"

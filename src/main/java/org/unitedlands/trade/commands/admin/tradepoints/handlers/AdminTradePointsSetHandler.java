@@ -20,7 +20,9 @@ public class AdminTradePointsSetHandler extends BaseCommandHandler<UnitedTrade> 
         super(plugin, messageProvider);
     }
 
-    private List<String> propertyList = Arrays.asList("currentOrderNo", "enabled", "name", "ownerName", "pickupCooldown", "applyContractPenalties", "contractPenalty");
+    private List<String> propertyList = Arrays.asList("currentOrderNo", "enabled", "name", "ownerName",
+            "pickupCooldown", "applyContractPenalties", "contractPenalty", "requiredPermissions",
+            "blacklistedPermissions");
 
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
@@ -68,7 +70,10 @@ public class AdminTradePointsSetHandler extends BaseCommandHandler<UnitedTrade> 
             } else if (fieldType == boolean.class || fieldType == Boolean.class) {
                 value = Boolean.parseBoolean(arg);
             } else {
-                value = arg;
+                if (arg.equals("NULL"))
+                    value = null;
+                else
+                    value = arg;
             }
 
             field.set(tradePoint, value);
