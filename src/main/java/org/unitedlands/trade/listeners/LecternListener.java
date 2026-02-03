@@ -1,29 +1,135 @@
 package org.unitedlands.trade.listeners;
 
-import java.util.Map;
-
+import java.util.ArrayList;
+import java.util.List;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerTakeLecternBookEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.MessageProvider;
-import org.unitedlands.trade.classes.OrderTrackerItem;
-import org.unitedlands.trade.classes.events.TradeOrderBookPreTakeEvent;
+import org.unitedlands.trade.classes.TradePoint;
+import org.unitedlands.trade.integrations.floodgate.FloodgateAPIIntegration;
 import org.unitedlands.trade.utils.TradeOrderBookUtil;
-import org.unitedlands.utils.Formatter;
-import org.unitedlands.utils.Messenger;
-
+import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.event.player.PlayerInsertLecternBookEvent;
+import io.papermc.paper.registry.data.dialog.ActionButton;
+import io.papermc.paper.registry.data.dialog.DialogBase;
+import io.papermc.paper.registry.data.dialog.action.DialogAction;
+import io.papermc.paper.registry.data.dialog.body.DialogBody;
+import io.papermc.paper.registry.data.dialog.type.DialogType;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickCallback;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class LecternListener implements Listener {
 
     private final UnitedTrade plugin;
+    @SuppressWarnings("unused")
     private final MessageProvider messageProvider;
 
     public LecternListener(UnitedTrade plugin, MessageProvider messageProvider) {
         this.plugin = plugin;
         this.messageProvider = messageProvider;
+    }
+
+    @EventHandler
+    public void onLecternInteract(PlayerInteractEvent event) {
+
+        if (event.getClickedBlock() == null)
+            return;
+
+        if (event.getClickedBlock().getType() != Material.LECTERN)
+            return;
+
+        var block = event.getClickedBlock();
+        var tradePoint = plugin.getTradePointManager().getTradePoint(block);
+        if (tradePoint == null)
+            return;
+
+        event.setCancelled(true);
+
+        var book = tradePoint.getBook();
+        if (book == null) {
+            return;
+        }
+
+        var player = event.getPlayer();
+
+        // Show different UIs to Java and Bedrock players if floodgate is present
+        if (!plugin.useFloodgate()) {
+            handleJavaDialogue(player, tradePoint, book);
+        } else {
+            var floodgate = new FloodgateAPIIntegration(plugin);
+            if (!floodgate.isBedrockPlayer(player))
+                handleJavaDialogue(player, tradePoint, book);
+            else {
+                handleFloodgatePanel(floodgate, player, tradePoint, book);
+            }
+        }
+
+    }
+
+    private void handleJavaDialogue(Player player, TradePoint tradePoint, ItemStack book) {
+
+        List<DialogBody> dialogBody = new ArrayList<>();
+
+        var baseComponents = TradeOrderBookUtil.getPanelComponents(book);
+        for (var component : baseComponents) {
+            dialogBody.add(DialogBody.plainMessage(component));
+        }
+
+        var miniMessage = MiniMessage.miniMessage();
+        var requiredItems = new ArrayList<>(TradeOrderBookUtil.getRequiredItems(book));
+        for (var item : requiredItems) {
+            var amount = item.getAmount() + "";
+            item.setAmount(1);
+
+            String material = "";
+            ItemMeta meta = item.getItemMeta();
+            Component displayName = meta.displayName();
+            if (displayName != null) {
+                material = PlainTextComponentSerializer.plainText().serialize(displayName);
+            } else {
+                material = TradeOrderBookUtil.formatReadable(item.getType().toString());
+            }
+            dialogBody.add(DialogBody.item(item, DialogBody.plainMessage(miniMessage.deserialize("<gold>" + amount + "</gold><gray>x</gray> " + material)),
+                    true, true, 18, 16));
+        }
+
+        Dialog dialog = Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(tradePoint.getCleanOwnerName() + "'s Trade Order"))
+                        .body(dialogBody)
+                        .build())
+                .type(DialogType.confirmation(
+                        ActionButton.builder(Component.text("Accept trade order"))
+                                .action(
+                                        DialogAction.customClick(
+                                                (view, audience) -> {
+                                                    if (plugin.getOrderTracker().acceptTradeOrder(player, tradePoint, book)) {
+                                                        tradePoint.removeBook();
+                                                        var leftover = player.getInventory().addItem(book);
+                                                        if (leftover.size() > 0) {
+                                                            for (var entry : leftover.entrySet()) {
+                                                                player.getLocation().getWorld().dropItemNaturally(player.getLocation(), entry.getValue());
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                ClickCallback.Options.builder().build()))
+                                .build(),
+                        ActionButton.builder(Component.text("Cancel")).build())));
+
+        player.showDialog(dialog);
+    }
+
+    private void handleFloodgatePanel(FloodgateAPIIntegration floodgate, Player player, TradePoint tradePoint,
+            ItemStack book) {
+        floodgate.sendTradePointOrderPanel(player, tradePoint, book);
     }
 
     @EventHandler
@@ -34,84 +140,6 @@ public class LecternListener implements Listener {
             return;
 
         event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onBookPickup(PlayerTakeLecternBookEvent event) {
-        var block = event.getLectern().getBlock();
-        var tradePoint = plugin.getTradePointManager().getTradePoint(block);
-        if (tradePoint == null)
-            return;
-
-        Player player = event.getPlayer();
-
-        if (tradePoint.isPlayerOnPickupCooldown(player.getUniqueId())) {
-            Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.on-cooldown"),
-                    Map.of("cooldown", Formatter.formatDuration(tradePoint.getPickupCooldown() * 1000)),
-                    messageProvider.get("messages.prefix"));
-            event.setCancelled(true);
-            return;
-        }
-
-        if (tradePoint.getRequiredPermissions() != null) {
-            var permissionsArray = tradePoint.getRequiredPermissions().split(",");
-            boolean playerHasAllRequiredPermissions = true;
-            for (var permString : permissionsArray) {
-                var perm = permString.trim();
-                if (!player.hasPermission(perm))
-                    playerHasAllRequiredPermissions = false;
-            }
-
-            if (!playerHasAllRequiredPermissions) {
-                Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.permission-error"), null,
-                        messageProvider.get("messages.prefix"));
-                event.setCancelled(true);
-                return;
-            }
-        }
-
-        if (tradePoint.getBlacklistedPermissions() != null) {
-            var permissionsArray = tradePoint.getBlacklistedPermissions().split(",");
-            boolean playerHasBlacklistedPermission = false;
-            for (var permString : permissionsArray) {
-                var perm = permString.trim();
-                if (player.hasPermission(perm))
-                    playerHasBlacklistedPermission = true;
-            }
-
-            if (playerHasBlacklistedPermission) {
-                Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.permission-error"), null,
-                        messageProvider.get("messages.prefix"));
-                event.setCancelled(true);
-                return;
-            }
-        }
-
-        var preTakeEvent = new TradeOrderBookPreTakeEvent(player, tradePoint);
-        preTakeEvent.callEvent();
-
-        // Some plugin may cancel the event, e.g. due to lack of reputation or wars,
-        // preventing players from taking order from this trade point
-        if (preTakeEvent.isCancelled()) {
-            event.setCancelled(true);
-            return;
-        }
-
-        var book = event.getBook();
-
-        var orderId = TradeOrderBookUtil.getOrderId(book);
-        var orderNo = TradeOrderBookUtil.getOrderNo(book);
-        var timelimit = TradeOrderBookUtil.getTimelimit(book);
-        var penalty = TradeOrderBookUtil.getPenalty(book);
-
-        var orderTrackerItem = new OrderTrackerItem(orderId, orderNo, tradePoint.getId(), player.getUniqueId(),
-                penalty, System.currentTimeMillis() + timelimit);
-        plugin.getOrderTracker().addTrackedOrder(orderTrackerItem);
-
-        Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.order-started"),
-                Map.of("remaining", Formatter.formatDuration(timelimit)), messageProvider.get("messages.prefix"));
-        tradePoint.addPlayerPickupCooldown(player.getUniqueId());
-
     }
 
 }

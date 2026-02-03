@@ -51,7 +51,6 @@ public class TradeOrderBookUtil {
                     + String.format("%,.2f", order.getPenalty()) + messageProvider.get("messages.currency")
                     + "</red>\n";
         }
-        page1Str += messageProvider.get("messages.tradebook.turn-page");
 
         Component page1 = MiniMessage.miniMessage().deserialize(page1Str);
         bookMeta.addPages(page1);
@@ -107,6 +106,7 @@ public class TradeOrderBookUtil {
         PersistentDataContainer pdc = bookMeta.getPersistentDataContainer();
         pdc.set(getKey("tradebook.orderId"), PersistentDataType.STRING, order.getId().toString());
         pdc.set(getKey("tradebook.orderNo"), PersistentDataType.STRING, orderNo.toString());
+        pdc.set(getKey("tradebook.description"), PersistentDataType.STRING, order.getDescription());
         if (order.getTradepointId() != null)
             pdc.set(getKey("tradebook.tradepointId"), PersistentDataType.STRING, order.getTradepointId().toString());
         pdc.set(getKey("tradebook.requiredItems"), PersistentDataType.STRING, itemsString);
@@ -119,6 +119,60 @@ public class TradeOrderBookUtil {
 
         return book;
     }
+
+    public static String getFloodgateContent(ItemStack book) {
+
+        var description = getDescription(book);
+        var price = getPrice(book);
+        var penalty = getPenalty(book);
+        var timelimit = Formatter.formatDuration(getTimelimit(book));
+        var requiredItems = getRequiredItems(book);
+
+        var itemStr = "";
+        for (var item : requiredItems) {
+            String material = "";
+            String amount = item.getAmount() + "";
+
+            ItemMeta meta = item.getItemMeta();
+            Component displayName = meta.displayName();
+            if (displayName != null) {
+                material = PlainTextComponentSerializer.plainText().serialize(displayName);
+            } else {
+                material = formatReadable(item.getType().toString());
+            }
+            itemStr += "§6" + amount + "§7x " + material + "\n";
+        }
+
+
+        String content = "§7" + description + "§r\n\n";
+        content += "§lPayment: §2" + String.format("%,.2f", price) + "§r\n";
+        content += "§lPenalty: §c" + String.format("%,.2f", penalty) + "§r\n";
+        content += "§lTime limit: §6" + timelimit + "§r\n\n";
+        content += "§lRequired items:" + "§r\n\n";
+        content += itemStr;
+
+        return content;
+    }
+
+    public static List<Component> getPanelComponents(ItemStack book)
+    {
+        List<Component> components = new ArrayList<>();
+
+        var description = getDescription(book);
+        var price = getPrice(book);
+        var penalty = getPenalty(book);
+        var timelimit = Formatter.formatDuration(getTimelimit(book));
+
+        var miniMessage = MiniMessage.miniMessage();
+        components.add(miniMessage.deserialize("<gray>" + description + "</gray><br>"));
+        components.add(miniMessage.deserialize("<bold>Payment: </bold><dark_green>" + String.format("%,.2f", price) + "</dark_green><br>" + 
+                                               "<bold>Penalty: </bold><red>" + String.format("%,.2f", penalty) + "</red><br>" +
+                                               "<bold>Time limit: </bold><gold>" + timelimit + "<gold>"));
+        components.add(miniMessage.deserialize("<bold>Required items:"));
+
+        return components;
+    }
+
 
     public static UUID getOrderId(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
@@ -135,6 +189,17 @@ public class TradeOrderBookUtil {
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         try {
             return pdc.get(getKey("tradebook.orderNo"), PersistentDataType.STRING);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    
+    public static String getDescription(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        try {
+            return pdc.get(getKey("tradebook.description"), PersistentDataType.STRING);
         } catch (Exception ex) {
             return null;
         }

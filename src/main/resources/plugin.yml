@@ -5,6 +5,7 @@ api-version: 1.18
 description: A custom United Lands plugin that for NPC trades.
 author: Theriel_
 depend: [ UnitedLib ]
+softdepend: [ Vault, FloodgateAPI ]
 permissions:
   united.trade.admin:
     default: op

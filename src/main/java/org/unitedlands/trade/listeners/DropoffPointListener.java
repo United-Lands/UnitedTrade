@@ -7,7 +7,9 @@ import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,11 +17,18 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 import org.unitedlands.trade.UnitedTrade;
+import org.unitedlands.trade.classes.DropoffPoint;
 import org.unitedlands.trade.classes.MessageProvider;
+import org.unitedlands.trade.classes.ShopPoint;
+import org.unitedlands.trade.classes.events.ShopOpenEvent;
 import org.unitedlands.trade.utils.TradeOrderBookUtil;
+import org.unitedlands.utils.Logger;
 import org.unitedlands.utils.Messenger;
 
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.TypedKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
@@ -44,11 +53,52 @@ public class DropoffPointListener implements Listener {
 
         var block = event.getClickedBlock();
         var dropffPoint = plugin.getDropoffPointManager().getDropoffPoint(block);
-        if (dropffPoint == null)
+        if (dropffPoint != null) {
+            handleDropoffPoint(event, block, dropffPoint);
             return;
+        }
+        var shopPoint = plugin.getShopPointManager().getShopPoint(block);
+        if (shopPoint != null) {
+            handleShopPoint(event, block, shopPoint);
+            return;
+        }
+
+    }
+
+    private void handleShopPoint(PlayerInteractEvent event, @Nullable Block block, ShopPoint shopPoint) {
+
+        if (shopPoint.getInventory() != null) {
+            event.setCancelled(true);
+            Player player = (Player) event.getPlayer();
+
+            Inventory inventory = null;
+            if (shopPoint.useGlobalInventory()) {
+                inventory = shopPoint.getInventory();
+            } else {
+                inventory = shopPoint.getInventory(player);
+            }
+
+            if (inventory == null) {
+                Logger.logError("Couldn't get inventory for shop point " + shopPoint.getId());
+                return;
+            }
+
+            ShopOpenEvent openEvent = new ShopOpenEvent();
+            openEvent.setPlayer(player);
+            openEvent.setShopPoint(shopPoint);
+            openEvent.callEvent();
+
+            if (openEvent.isCancelled())
+                return;
+
+            player.openInventory(inventory);
+        }
+
+    }
+
+    private void handleDropoffPoint(PlayerInteractEvent event, @Nullable Block block, DropoffPoint dropffPoint) {
 
         event.setCancelled(true);
-
         Player player = (Player) event.getPlayer();
 
         var book = player.getInventory().getItemInMainHand();
@@ -70,14 +120,13 @@ public class DropoffPointListener implements Listener {
         var orderID = TradeOrderBookUtil.getOrderId(book);
         var trackedOrder = orderTracker.getTrackedOrder(orderID);
 
-        if (trackedOrder == null)
-        {
+        if (trackedOrder == null) {
             Messenger.sendMessage(player, messageProvider.get("messages.errors.order-expired"), null,
                     messageProvider.get("messages.prefix"));
             player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
             return;
         }
-        
+
         var requiredItems = TradeOrderBookUtil.getRequiredItems(book);
         List<ItemStack> missingItems = TradeOrderBookUtil.getMissingItems(player, requiredItems);
 
@@ -113,9 +162,22 @@ public class DropoffPointListener implements Listener {
             var orderNo = TradeOrderBookUtil.getOrderNo(book);
             orderTracker.handleCompletedOrder(player, tradepointId, orderNo, price);
 
+            Particle completeParticle = Particle.HAPPY_VILLAGER;
+            try {
+                completeParticle = Registry.PARTICLE_TYPE.get(TypedKey.create(RegistryKey.PARTICLE_TYPE,
+                        plugin.getConfig().getString("effects.complete-particle")));
+            } catch (Exception ignore) {
+            }
+            Sound completeSound = Sound.ENTITY_PLAYER_LEVELUP;
+            try {
+                completeSound = Registry.SOUNDS.get(TypedKey.create(RegistryKey.SOUND_EVENT,
+                        plugin.getConfig().getString("effects.complete-sound")));
+            } catch (Exception ignore) {
+            }
+
             Location loc = block.getLocation().clone().add(0.5, 0.5, 0.5);
-            block.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, loc, 16, 0.5, 0.5, 0.5);
-            block.getWorld().playSound(loc, Sound.ENTITY_PLAYER_LEVELUP, 8f, 1f);
+            block.getWorld().spawnParticle(completeParticle, loc, 16, 0.5, 0.5, 0.5);
+            block.getWorld().playSound(loc, completeSound, 8f, 1f);
 
             orderTracker.removeTrackedOrder(TradeOrderBookUtil.getOrderId(book));
 
@@ -123,7 +185,6 @@ public class DropoffPointListener implements Listener {
                     messageProvider.get("messages.prefix"));
 
         }
-
     }
 
     public static boolean removeItems(Inventory inventory, Material material, int amount) {

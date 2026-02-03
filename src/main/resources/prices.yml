@@ -315,7 +315,63 @@ materials:
   POLISHED_ANDESITE_STAIRS: 1.0
   POLISHED_ANDESITE_WALL: 1.1
 
+  # === COAL (fuel baseline) ===
+  COAL_ORE: 1.0
+  DEEPSLATE_COAL_ORE: 1.2
+  COAL: 1.2
+  COAL_BLOCK: 10.0
 
+  # === COPPER (abundant, low utility) ===
+  COPPER_ORE: 0.8
+  DEEPSLATE_COPPER_ORE: 1.0
+  RAW_COPPER: 0.9
+  COPPER_INGOT: 1.1
+  COPPER_BLOCK: 10.0
+
+  # === IRON (core progression metal) ===
+  IRON_ORE: 1.5
+  DEEPSLATE_IRON_ORE: 1.8
+  RAW_IRON: 1.7
+  IRON_INGOT: 2.0
+  IRON_BLOCK: 18.0
+
+  # === GOLD (rarer, Nether synergy) ===
+  GOLD_ORE: 2.2
+  DEEPSLATE_GOLD_ORE: 2.6
+  NETHER_GOLD_ORE: 2.0
+  RAW_GOLD: 2.4
+  GOLD_INGOT: 2.8
+  GOLD_BLOCK: 25.0
+
+  # === REDSTONE (bulk utility ore) ===
+  REDSTONE_ORE: 2.0
+  DEEPSLATE_REDSTONE_ORE: 2.4
+  REDSTONE: 0.6
+  REDSTONE_BLOCK: 5.0
+
+  # === LAPIS LAZULI (enchantment gate) ===
+  LAPIS_ORE: 2.5
+  DEEPSLATE_LAPIS_ORE: 3.0
+  LAPIS_LAZULI: 0.9
+  LAPIS_BLOCK: 8.0
+
+  # === DIAMOND (high rarity, no processing) ===
+  DIAMOND_ORE: 8.0
+  DEEPSLATE_DIAMOND_ORE: 9.0
+  DIAMOND: 9.5
+  DIAMOND_BLOCK: 85.0
+
+  # === EMERALD (biome + trading gate) ===
+  EMERALD_ORE: 10.0
+  DEEPSLATE_EMERALD_ORE: 11.0
+  EMERALD: 11.5
+  EMERALD_BLOCK: 100.0
+
+  # === NETHERITE PROGRESSION (extreme tier) ===
+  ANCIENT_DEBRIS: 25.0
+  NETHERITE_SCRAP: 30.0
+  NETHERITE_INGOT: 45.0
+  NETHERITE_BLOCK: 400.0
 
 
 # +------------------------------------+

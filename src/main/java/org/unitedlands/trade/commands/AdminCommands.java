@@ -7,6 +7,7 @@ import org.unitedlands.trade.commands.admin.AdminCreateTestOrderCommand;
 import org.unitedlands.trade.commands.admin.AdminReloadCommand;
 import org.unitedlands.trade.commands.admin.AdminValidateTestOrderCommand;
 import org.unitedlands.trade.commands.admin.dropoffpoint.AdminDropoffPointsSubcommandHandler;
+import org.unitedlands.trade.commands.admin.shoppoint.AdminShopPointsSubcommandHandler;
 import org.unitedlands.trade.commands.admin.tradepoints.AdminTradePointsSubcommandHandler;
 
 public class AdminCommands extends BaseCommandExecutor<UnitedTrade> {
@@ -22,6 +23,7 @@ public class AdminCommands extends BaseCommandExecutor<UnitedTrade> {
         handlers.put("validatetestorder", new AdminValidateTestOrderCommand(plugin, messageProvider));
         handlers.put("tradepoints", new AdminTradePointsSubcommandHandler(plugin, messageProvider));
         handlers.put("dropoffpoints", new AdminDropoffPointsSubcommandHandler(plugin, messageProvider));
+        handlers.put("shoppoints", new AdminShopPointsSubcommandHandler(plugin, messageProvider));
     }
 
 }

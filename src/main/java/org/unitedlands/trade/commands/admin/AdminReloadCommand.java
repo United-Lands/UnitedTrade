@@ -35,8 +35,10 @@ public class AdminReloadCommand extends BaseCommandHandler<UnitedTrade>{
         plugin.getMessageProvider().reload(plugin.getConfig());
 
         plugin.getOrderTemplateManager().loadTemplates();
+        plugin.getShopTemplateManager().loadTemplates();
         plugin.getTradePointManager().loadTradePoints();
         plugin.getDropoffPointManager().loadDropoffPoints();
+        plugin.getShopPointManager().loadShopPoints();
         plugin.getOrderTracker().loadTrackedOrders();
 
         Logger.log("Starting schedulers...", "UnitedTrade");

@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -22,6 +23,9 @@ import org.unitedlands.trade.utils.TradeOrderBookUtil;
 import org.unitedlands.trade.utils.annotations.Info;
 
 import com.google.gson.annotations.Expose;
+
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.TypedKey;
 
 public class TradePoint {
 
@@ -65,6 +69,18 @@ public class TradePoint {
     @Expose
     @Info
     private String blacklistedPermissions;
+
+    @Expose
+    @Info
+    private double minReputation = 0;
+
+    @Expose
+    @Info
+    private double reputationOnComplete = 5;
+
+    @Expose
+    @Info
+    private double reputationOnFail = -5;
 
     public TradePoint() {
 
@@ -179,6 +195,30 @@ public class TradePoint {
         this.blacklistedPermissions = blacklistedPermissions;
     }
 
+    public double getMinReputation() {
+        return minReputation;
+    }
+
+    public void setMinReputation(double minReputation) {
+        this.minReputation = minReputation;
+    }
+
+    public double getReputationOnComplete() {
+        return reputationOnComplete;
+    }
+
+    public void setReputationOnComplete(double reputationOnComplete) {
+        this.reputationOnComplete = reputationOnComplete;
+    }
+
+    public double getReputationOnFail() {
+        return reputationOnFail;
+    }
+
+    public void setReputationOnFail(double reputationOnFail) {
+        this.reputationOnFail = reputationOnFail;
+    }
+
     public void spawnLectern() {
 
         var block = this.location.getBlock();
@@ -246,13 +286,55 @@ public class TradePoint {
 
                     Location loc = block.getLocation().clone().add(0.5, 0.5, 0.5);
 
-                    block.getWorld().spawnParticle(Particle.FIREWORK, loc, 16, 0.5, 0.5, 0.5);
-                    block.getWorld().playSound(loc, Sound.ENTITY_ENDERMITE_DEATH, 8f, 1f);
+                    Particle restockParticle = Particle.DUST_PLUME;
+                    try {
+                        restockParticle = Registry.PARTICLE_TYPE.get(TypedKey.create(RegistryKey.PARTICLE_TYPE,
+                                UnitedTrade.getInstance().getConfig().getString("effects.complete-particle")));
+                    } catch (Exception ignore) {
+                    }
+                    Sound restockSound = Sound.ENTITY_ENDERMITE_DEATH;
+                    try {
+                        restockSound = Registry.SOUNDS.get(TypedKey.create(RegistryKey.SOUND_EVENT,
+                                UnitedTrade.getInstance().getConfig().getString("effects.complete-sound")));
+                    } catch (Exception ignore) {
+                    }
+
+                    block.getWorld().spawnParticle(restockParticle, loc, 16, 0.5, 0.5, 0.5);
+                    block.getWorld().playSound(loc, restockSound, 8f, 1f);
                 }
             }
 
         }
 
+    }
+
+    public void removeBook() {
+        Block block = this.location.getBlock();
+        if (block.getType() != Material.LECTERN)
+            return;
+
+        if (block.getBlockData() instanceof org.bukkit.block.data.type.Lectern lectern) {
+            org.bukkit.block.Lectern lecternState = (org.bukkit.block.Lectern) block.getState();
+            LecternInventory lecternInv = (LecternInventory) lecternState.getInventory();
+            lecternInv.setBook(null);
+
+            lectern.setHasBook(false);
+            block.setBlockData(lectern, true);
+        }
+        return;
+    }
+
+    public ItemStack getBook() {
+        Block block = this.location.getBlock();
+        if (block.getType() != Material.LECTERN)
+            return null;
+
+        if (block.getBlockData() instanceof org.bukkit.block.data.type.Lectern) {
+            org.bukkit.block.Lectern lecternState = (org.bukkit.block.Lectern) block.getState();
+            LecternInventory lecternInv = (LecternInventory) lecternState.getInventory();
+            return lecternInv.getBook();
+        }
+        return null;
     }
 
     @Override

@@ -1,6 +1,16 @@
 check-frequency: 1200
+
+# Fallback commands if no compatible economy plugin can be found. Note that
+# shops will not be able to determine if a player has sufficient funds
+# to purchase items, they will always sell.
 pay-command: "cmi money give {user} {amount}"
-take-command: "cmi money take-command: {user} {amount}"
+take-command: "cmi money take {user} {amount}"
+
+effects:
+  complete-particle: wax_off
+  complete-sound: block.note_block.banjo
+  restock-particle: smoke
+  restock-sound: block.note_block.didgeridoo
 
 messages:
   prefix: "<bold><red>U</red><white>L</white> Trade <dark_gray>» </dark_gray></bold>"
@@ -12,6 +22,9 @@ messages:
   file-delete-success: "<dark_green>File deleted succesfully."
   file-delete-error: "<red>Error while trying to delete file."
 
+  paid-money: "<red>{amount} was taken from you bank account.</red>"
+  received-money: "<green>You received {amount}.</green>"
+
   tradebook:
     contractor: "Contractor"
     payment: "Payment"
@@ -19,12 +32,16 @@ messages:
     penalty: "Contract Penalty"
     turn-page: "<bold><dark_gray>Turn page »</dark_gray></bold>"
     required-items-line: "{material} <dark_aqua> x{amount}</dark_aqua>\n\n"
-  
+
   tradepoint:
     on-cooldown: "<gray>You recently picked up an order here. You can only get one every {cooldown}.</gray>"
     permission-error: "<red>You don't meet the requirements for using this trade point!</red>"
     order-started: "<green>You picked up an order! You will have {remaining} to drop off the required items at the chest to get your payment.</green>"
     order-failed: "<red>Your order {order-no} was not fulfilled in time. Your client has been informed.</red>"
+
+  shop:
+    remaining-time: "<gray>Thanks for visiting. We will restock in {remaining}."
+    insufficient-funds: "<red>You don't have enough money!</red>"
 
   checkorder:
     success: "<green>All required items are in your inventory</green>"

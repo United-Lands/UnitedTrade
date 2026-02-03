@@ -12,15 +12,19 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.classes.OrderTrackerItem;
 import org.unitedlands.trade.classes.TradePoint;
+import org.unitedlands.trade.classes.events.TradeOrderBookPreTakeEvent;
 import org.unitedlands.trade.classes.events.TradeOrderCompletedEvent;
 import org.unitedlands.trade.classes.events.TradeOrderFailedEvent;
 import org.unitedlands.trade.utils.JsonUtils;
+import org.unitedlands.trade.utils.TradeOrderBookUtil;
+import org.unitedlands.utils.Formatter;
 import org.unitedlands.utils.Logger;
 import org.unitedlands.utils.Messenger;
 
@@ -38,6 +42,72 @@ public class OrderTracker {
     public OrderTracker(UnitedTrade plugin, MessageProvider messageProvider) {
         this.plugin = plugin;
         this.messageProvider = messageProvider;
+    }
+
+    public boolean acceptTradeOrder(Player player, TradePoint tradePoint, ItemStack book) {
+
+        if (tradePoint.isPlayerOnPickupCooldown(player.getUniqueId())) {
+            Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.on-cooldown"),
+                    Map.of("cooldown", Formatter.formatDuration(tradePoint.getPickupCooldown() * 1000)),
+                    messageProvider.get("messages.prefix"));
+            return false;
+        }
+
+        if (tradePoint.getRequiredPermissions() != null) {
+            var permissionsArray = tradePoint.getRequiredPermissions().split(",");
+            boolean playerHasAllRequiredPermissions = true;
+            for (var permString : permissionsArray) {
+                var perm = permString.trim();
+                if (!player.hasPermission(perm))
+                    playerHasAllRequiredPermissions = false;
+            }
+
+            if (!playerHasAllRequiredPermissions) {
+                Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.permission-error"), null,
+                        messageProvider.get("messages.prefix"));
+                return false;
+            }
+        }
+
+        if (tradePoint.getBlacklistedPermissions() != null) {
+            var permissionsArray = tradePoint.getBlacklistedPermissions().split(",");
+            boolean playerHasBlacklistedPermission = false;
+            for (var permString : permissionsArray) {
+                var perm = permString.trim();
+                if (player.hasPermission(perm))
+                    playerHasBlacklistedPermission = true;
+            }
+
+            if (playerHasBlacklistedPermission) {
+                Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.permission-error"), null,
+                        messageProvider.get("messages.prefix"));
+                return false;
+            }
+        }
+
+        var preTakeEvent = new TradeOrderBookPreTakeEvent(player, tradePoint);
+        preTakeEvent.callEvent();
+
+        // Some plugin may cancel the event, e.g. due to lack of reputation or wars,
+        // preventing players from taking order from this trade point
+        if (preTakeEvent.isCancelled()) {
+            return false;
+        }
+
+        var orderId = TradeOrderBookUtil.getOrderId(book);
+        var orderNo = TradeOrderBookUtil.getOrderNo(book);
+        var timelimit = TradeOrderBookUtil.getTimelimit(book);
+        var penalty = TradeOrderBookUtil.getPenalty(book);
+
+        var orderTrackerItem = new OrderTrackerItem(orderId, orderNo, tradePoint.getId(), player.getUniqueId(),
+                penalty, System.currentTimeMillis() + timelimit);
+        addTrackedOrder(orderTrackerItem);
+
+        Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.order-started"),
+                Map.of("remaining", Formatter.formatDuration(timelimit)), messageProvider.get("messages.prefix"));
+        tradePoint.addPlayerPickupCooldown(player.getUniqueId());
+        
+        return true;
     }
 
     public void addTrackedOrder(OrderTrackerItem item) {
@@ -106,12 +176,8 @@ public class OrderTracker {
 
     public void handleExpiredOrder(Player player, UUID tradepointId, String orderNo, double penalty) {
         if (penalty != 0) {
-            var cmd = UnitedTrade.getInstance().getConfig().getString("take-command");
-            cmd = cmd.replace("{user}", player.getName());
-            cmd = cmd.replace("{amount}", penalty + "");
-            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), cmd);
+            plugin.getEconomyProvider().takeMoneyFromPlayer(player, penalty, "Contract penalty");
         }
-        Logger.log("handleExpiredOrder");
         TradePoint tradepoint = plugin.getTradePointManager().getTradePoint(tradepointId);
         (new TradeOrderFailedEvent(player, tradepoint, penalty)).callEvent();
     }
@@ -134,7 +200,7 @@ public class OrderTracker {
                                 "reason", event.getBonusReason()),
                         messageProvider.get("messages.prefix"));
             } else {
-                                Messenger.sendMessage(player, messageProvider.get("messages.checkorder.malus"),
+                Messenger.sendMessage(player, messageProvider.get("messages.checkorder.malus"),
                         Map.of("bonus", String.format("%,.2f", bonus) + messageProvider.get("messages.currency"),
                                 "reason", event.getBonusReason()),
                         messageProvider.get("messages.prefix"));
@@ -144,10 +210,7 @@ public class OrderTracker {
         var totalPayment = event.getPayment() + event.getBonus();
 
         if (payment != 0) {
-            var cmd = UnitedTrade.getInstance().getConfig().getString("pay-command");
-            cmd = cmd.replace("{user}", player.getName());
-            cmd = cmd.replace("{amount}", totalPayment + "");
-            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), cmd);
+            plugin.getEconomyProvider().giveMoneyToPlayer(player, totalPayment, "Order payment");
         }
     }
 

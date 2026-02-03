@@ -17,7 +17,9 @@ public class ServerListener implements Listener {
     public void onServerLoad(ServerLoadEvent event) {
         plugin.getTradePointManager().loadTradePoints();
         plugin.getOrderTemplateManager().loadTemplates();
+        plugin.getShopTemplateManager().loadTemplates();
         plugin.getDropoffPointManager().loadDropoffPoints();
+        plugin.getShopPointManager().loadShopPoints();
         plugin.getOrderTracker().loadTrackedOrders();
         plugin.getOrderTracker().startTracking();
     }
