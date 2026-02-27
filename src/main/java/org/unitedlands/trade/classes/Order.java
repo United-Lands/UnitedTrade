@@ -12,11 +12,14 @@ public class Order {
     private UUID tradepointId;
     private Integer orderNo;
     private List<ItemStack> requiredItems = new ArrayList<>();
+    private List<ItemStack> barterItems = new ArrayList<>();
     private String customer;
     private String description;
     private long timelimit;
-    private double price;
-    private double penalty;
+    private boolean barter;
+
+    private double price = 0.0d;
+    private double penalty = 0.0d;
 
     public Order() {
         this.id = UUID.randomUUID();
@@ -45,6 +48,14 @@ public class Order {
         this.requiredItems = requiredItems;
     }
 
+    public List<ItemStack> getBarterItems() {
+        return barterItems;
+    }
+
+    public void setBarterItems(List<ItemStack> barterItems) {
+        this.barterItems = barterItems;
+    }
+
     public String getCustomer() {
         return customer;
     }
@@ -67,6 +78,14 @@ public class Order {
 
     public void setTimelimit(long timelimit) {
         this.timelimit = timelimit;
+    }
+
+    public boolean isBarter() {
+        return barter;
+    }
+
+    public void setBarter(boolean barter) {
+        this.barter = barter;
     }
 
     public double getPrice() {

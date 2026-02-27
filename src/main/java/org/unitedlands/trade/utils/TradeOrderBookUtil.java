@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.unitedlands.UnitedLib;
+import org.unitedlands.factories.items.IItemFactory;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.classes.Order;
@@ -32,6 +33,7 @@ public class TradeOrderBookUtil {
     public static ItemStack createBook(Order order) {
 
         MessageProvider messageProvider = UnitedTrade.getInstance().getMessageProvider();
+        IItemFactory itemFactory = UnitedLib.getInstance().getItemFactory();
 
         var book = new ItemStack(Material.WRITTEN_BOOK);
 
@@ -41,15 +43,29 @@ public class TradeOrderBookUtil {
         page1Str += order.getDescription() + "\n\n";
         page1Str += "<bold>" + messageProvider.get("messages.tradebook.contractor") + "</bold>:\n" + order.getCustomer()
                 + "\n";
-        page1Str += "<bold>" + messageProvider.get("messages.tradebook.payment") + "</bold>:\n<dark_green>"
-                + String.format("%,.2f", order.getPrice()) + messageProvider.get("messages.currency")
-                + "</dark_green>\n";
+
+        if (!order.isBarter()) {
+            page1Str += "<bold>" + messageProvider.get("messages.tradebook.payment") + "</bold>:\n<dark_green>"
+                    + String.format("%,.2f", order.getPrice()) + messageProvider.get("messages.currency")
+                    + "</dark_green>\n";
+            if (order.getPenalty() != 0) {
+                page1Str += "<bold>" + messageProvider.get("messages.tradebook.penalty") + "</bold>:\n<red>"
+                        + String.format("%,.2f", order.getPenalty()) + messageProvider.get("messages.currency")
+                        + "</red>\n";
+            }
+        }
         page1Str += "<bold>" + messageProvider.get("messages.tradebook.timelimit") + "</bold>:\n"
                 + Formatter.formatDuration(order.getTimelimit()) + "\n";
-        if (order.getPenalty() != 0) {
-            page1Str += "<bold>" + messageProvider.get("messages.tradebook.penalty") + "</bold>:\n<red>"
-                    + String.format("%,.2f", order.getPenalty()) + messageProvider.get("messages.currency")
-                    + "</red>\n";
+
+        var barterItems = order.getBarterItems();
+        if (barterItems.size() > 0) {
+            page1Str += "<bold>" + messageProvider.get("messages.tradebook.barter") + "</bold>: ";
+            for (var item : barterItems) {
+                String material = itemFactory.getDisplayName(item);
+                String amount = item.getAmount() + "";
+                page1Str += amount + "x " + material;
+            }
+            page1Str += "\n";
         }
 
         Component page1 = MiniMessage.miniMessage().deserialize(page1Str);
@@ -68,16 +84,8 @@ public class TradeOrderBookUtil {
 
             String itemPageStr = "";
             for (ItemStack item : block) {
-                String material = "";
+                String material = itemFactory.getDisplayName(item);
                 String amount = item.getAmount() + "";
-
-                ItemMeta meta = item.getItemMeta();
-                Component displayName = meta.displayName();
-                if (displayName != null) {
-                    material = PlainTextComponentSerializer.plainText().serialize(displayName);
-                } else {
-                    material = formatReadable(item.getType().toString());
-                }
                 itemPageStr += line.replace("{material}", material).replace("{amount}", amount);
             }
             itemPages.add(itemPageStr);
@@ -98,9 +106,13 @@ public class TradeOrderBookUtil {
         bookMeta.displayName(Component.text("Order No " + orderNo));
 
         var itemsString = "";
-        var itemFactory = UnitedLib.getInstance().getItemFactory();
         for (var item : requiredItems) {
             itemsString += itemFactory.getFilterName(item) + "#" + item.getAmount() + ";";
+        }
+
+        var barterItemsString = "";
+        for (var item : barterItems) {
+            barterItemsString += itemFactory.getFilterName(item) + "#" + item.getAmount() + ";";
         }
 
         PersistentDataContainer pdc = bookMeta.getPersistentDataContainer();
@@ -110,9 +122,11 @@ public class TradeOrderBookUtil {
         if (order.getTradepointId() != null)
             pdc.set(getKey("tradebook.tradepointId"), PersistentDataType.STRING, order.getTradepointId().toString());
         pdc.set(getKey("tradebook.requiredItems"), PersistentDataType.STRING, itemsString);
+        pdc.set(getKey("tradebook.barterItems"), PersistentDataType.STRING, barterItemsString);
         pdc.set(getKey("tradebook.timelimit"), PersistentDataType.LONG, order.getTimelimit());
         pdc.set(getKey("tradebook.price"), PersistentDataType.DOUBLE, order.getPrice());
         pdc.set(getKey("tradebook.penalty"), PersistentDataType.DOUBLE, order.getPenalty());
+        pdc.set(getKey("tradebook.barter"), PersistentDataType.BOOLEAN, order.isBarter());
         pdc.set(getKey("tradebook.tradeorderbook"), PersistentDataType.INTEGER, 1);
 
         book.setItemMeta(bookMeta);
@@ -122,57 +136,73 @@ public class TradeOrderBookUtil {
 
     public static String getFloodgateContent(ItemStack book) {
 
+        MessageProvider messageProvider = UnitedTrade.getInstance().getMessageProvider();
+        IItemFactory itemFactory = UnitedLib.getInstance().getItemFactory();
+
         var description = getDescription(book);
         var price = getPrice(book);
         var penalty = getPenalty(book);
         var timelimit = Formatter.formatDuration(getTimelimit(book));
         var requiredItems = getRequiredItems(book);
+        var barter = getIsBarter(book);
+        var barterItems = getBarterItems(book);
+
+        String content = "§7" + description + "§r\n\n";
+        if (!barter) {
+            content += "§l" + messageProvider.get("messages.tradebook.payment") + ": §2" + String.format("%,.2f", price) + "§r\n";
+            content += "§l" + messageProvider.get("messages.tradebook.payment") + ": §c" + String.format("%,.2f", penalty) + "§r\n";
+        }
+        if (!barterItems.isEmpty()) {
+            var barterItemStr = "";
+            for (var item : barterItems) {
+                String material = itemFactory.getDisplayName(item);
+                String amount = item.getAmount() + "";
+                barterItemStr += "§6" + amount + "§7x " + material + "\n";
+            }
+            content += "§l" + messageProvider.get("messages.tradebook.barter") + ":" + "§r\n";
+            content += barterItemStr;
+        }
+
+        content += "§l" + messageProvider.get("messages.tradebook.timelimit") + ": §6" + timelimit + "§r\n\n";
 
         var itemStr = "";
         for (var item : requiredItems) {
-            String material = "";
+            String material = itemFactory.getDisplayName(item);
             String amount = item.getAmount() + "";
-
-            ItemMeta meta = item.getItemMeta();
-            Component displayName = meta.displayName();
-            if (displayName != null) {
-                material = PlainTextComponentSerializer.plainText().serialize(displayName);
-            } else {
-                material = formatReadable(item.getType().toString());
-            }
             itemStr += "§6" + amount + "§7x " + material + "\n";
         }
-
-
-        String content = "§7" + description + "§r\n\n";
-        content += "§lPayment: §2" + String.format("%,.2f", price) + "§r\n";
-        content += "§lPenalty: §c" + String.format("%,.2f", penalty) + "§r\n";
-        content += "§lTime limit: §6" + timelimit + "§r\n\n";
-        content += "§lRequired items:" + "§r\n\n";
+        content += "§l" + messageProvider.get("messages.tradebook.required-items") + ":" + "§r\n\n";
         content += itemStr;
 
         return content;
     }
 
-    public static List<Component> getPanelComponents(ItemStack book)
-    {
+    public static List<Component> getBasePanelComponents(ItemStack book) {
+
+        MessageProvider messageProvider = UnitedTrade.getInstance().getMessageProvider();
+
         List<Component> components = new ArrayList<>();
 
         var description = getDescription(book);
         var price = getPrice(book);
         var penalty = getPenalty(book);
         var timelimit = Formatter.formatDuration(getTimelimit(book));
+        var barter = getIsBarter(book);
 
         var miniMessage = MiniMessage.miniMessage();
         components.add(miniMessage.deserialize("<gray>" + description + "</gray><br>"));
-        components.add(miniMessage.deserialize("<bold>Payment: </bold><dark_green>" + String.format("%,.2f", price) + "</dark_green><br>" + 
-                                               "<bold>Penalty: </bold><red>" + String.format("%,.2f", penalty) + "</red><br>" +
-                                               "<bold>Time limit: </bold><gold>" + timelimit + "<gold>"));
-        components.add(miniMessage.deserialize("<bold>Required items:"));
 
+        var paymentLines = "";
+        if (!barter)
+        {
+            paymentLines += "<bold>" + messageProvider.get("messages.tradebook.payment")  + ": </bold><dark_green>" + String.format("%,.2f", price) + "</dark_green><br>" +
+                            "<bold>" + messageProvider.get("messages.tradebook.penalty") + ": </bold><red>" + String.format("%,.2f", penalty) + "</red><br>";
+        }
+        paymentLines += "<bold>" + messageProvider.get("messages.tradebook.timelimit") + ": </bold><gold>" + timelimit + "<gold>";
+
+        components.add(miniMessage.deserialize(paymentLines));
         return components;
     }
-
 
     public static UUID getOrderId(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
@@ -181,6 +211,16 @@ public class TradeOrderBookUtil {
             return UUID.fromString(pdc.get(getKey("tradebook.orderId"), PersistentDataType.STRING));
         } catch (Exception ex) {
             return null;
+        }
+    }
+
+    public static boolean getIsBarter(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        try {
+            return pdc.get(getKey("tradebook.barter"), PersistentDataType.BOOLEAN);
+        } catch (Exception ex) {
+            return false;
         }
     }
 
@@ -194,7 +234,6 @@ public class TradeOrderBookUtil {
         }
     }
 
-    
     public static String getDescription(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
@@ -215,8 +254,8 @@ public class TradeOrderBookUtil {
         }
     }
 
-    public static List<ItemStack> getRequiredItems(ItemStack item) {
-        ItemMeta meta = item.getItemMeta();
+    public static List<ItemStack> getRequiredItems(ItemStack book) {
+        ItemMeta meta = book.getItemMeta();
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         var itemFactory = UnitedLib.getInstance().getItemFactory();
         try {
@@ -232,6 +271,27 @@ public class TradeOrderBookUtil {
             return result;
         } catch (Exception ex) {
             Logger.logError("Failed trade book required item parsing.", "UnitedTrade");
+            return null;
+        }
+    }
+
+    public static List<ItemStack> getBarterItems(ItemStack book) {
+        ItemMeta meta = book.getItemMeta();
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        var itemFactory = UnitedLib.getInstance().getItemFactory();
+        try {
+            var result = new ArrayList<ItemStack>();
+            var list = pdc.get(getKey("tradebook.barterItems"), PersistentDataType.STRING);
+            var itemsAmounts = list.split(";");
+            for (var itemAmount : itemsAmounts) {
+                var split = itemAmount.split("#");
+                if (split.length == 2) {
+                    result.add(itemFactory.getItemStack(split[0], Integer.parseInt(split[1])));
+                }
+            }
+            return result;
+        } catch (Exception ex) {
+            Logger.logError("Failed trade book barter item parsing.", "UnitedTrade");
             return null;
         }
     }

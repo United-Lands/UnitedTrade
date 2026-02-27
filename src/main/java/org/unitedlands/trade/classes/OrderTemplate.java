@@ -7,18 +7,28 @@ import java.util.Random;
 public class OrderTemplate {
 
     private long timelimit;
+    private boolean barter;
+
     private List<String> randomDescriptions = new ArrayList<>();
     private List<OrderTemplateItemGroup> itemGroups = new ArrayList<>();
+    private List<OrderBarterItem> barterItems = new ArrayList<>();
 
-        
     public long getTimelimit() {
         return timelimit;
+    }
+
+    public boolean isBarter() {
+        return barter;
+    }
+
+    public void setBarter(boolean barter) {
+        this.barter = barter;
     }
 
     public void setTimelimit(long timelimit) {
         this.timelimit = timelimit;
     }
-    
+
     public String getRandomDescription() {
         var rnd = new Random();
         if (randomDescriptions == null || randomDescriptions.isEmpty())
@@ -42,6 +52,12 @@ public class OrderTemplate {
         this.itemGroups = items;
     }
 
-    
+    public List<OrderBarterItem> getBarterItems() {
+        return barterItems;
+    }
+
+    public void setBarterItems(List<OrderBarterItem> barterItems) {
+        this.barterItems = barterItems;
+    }
 
 }

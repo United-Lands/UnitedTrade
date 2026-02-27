@@ -22,7 +22,7 @@ public class AdminTradePointsSetHandler extends BaseCommandHandler<UnitedTrade> 
 
     private List<String> propertyList = Arrays.asList("currentOrderNo", "enabled", "name", "ownerName",
             "pickupCooldown", "applyContractPenalties", "contractPenalty", "requiredPermissions",
-            "blacklistedPermissions");
+            "blacklistedPermissions", "replaceBookOnRestock", "customRestockFrequency");
 
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {

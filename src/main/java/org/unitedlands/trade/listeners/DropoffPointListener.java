@@ -16,8 +16,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
+import org.unitedlands.UnitedLib;
+import org.unitedlands.factories.items.IItemFactory;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.DropoffPoint;
 import org.unitedlands.trade.classes.MessageProvider;
@@ -29,8 +30,6 @@ import org.unitedlands.utils.Messenger;
 
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class DropoffPointListener implements Listener {
 
@@ -132,16 +131,11 @@ public class DropoffPointListener implements Listener {
 
         if (!missingItems.isEmpty()) {
 
+            IItemFactory itemFactory = UnitedLib.getInstance().getItemFactory();
+
             List<String> missing = new ArrayList<>();
             for (ItemStack item : missingItems) {
-                String itemStr = "";
-                ItemMeta meta = item.getItemMeta();
-                Component displayName = meta.displayName();
-                if (displayName != null) {
-                    itemStr += PlainTextComponentSerializer.plainText().serialize(displayName);
-                } else {
-                    itemStr = TradeOrderBookUtil.formatReadable(item.getType().toString());
-                }
+                String itemStr = itemFactory.getDisplayName(item);
                 itemStr += " x" + item.getAmount();
                 missing.add(itemStr);
             }
@@ -154,13 +148,14 @@ public class DropoffPointListener implements Listener {
             var inventory = player.getInventory();
             var itemsToRemove = TradeOrderBookUtil.getRequiredItems(book);
             for (ItemStack itemStack : itemsToRemove) {
-                removeItems(inventory, itemStack.getType(), itemStack.getAmount());
+                removeItems(inventory, itemStack, itemStack.getAmount());
             }
             inventory.setItemInMainHand(new ItemStack(Material.AIR));
 
             var price = TradeOrderBookUtil.getPrice(book);
             var orderNo = TradeOrderBookUtil.getOrderNo(book);
-            orderTracker.handleCompletedOrder(player, tradepointId, orderNo, price);
+            var barterItems = TradeOrderBookUtil.getBarterItems(book);
+            orderTracker.handleCompletedOrder(player, tradepointId, orderNo, price, barterItems);
 
             Particle completeParticle = Particle.HAPPY_VILLAGER;
             try {
@@ -187,22 +182,24 @@ public class DropoffPointListener implements Listener {
         }
     }
 
-    public static boolean removeItems(Inventory inventory, Material material, int amount) {
+    public static boolean removeItems(Inventory inventory, ItemStack itemToRemove, int amount) {
         int toRemove = amount;
 
-        for (ItemStack item : inventory.getContents()) {
-            if (item == null)
+        var itemFactory = UnitedLib.getInstance().getItemFactory();
+        
+        for (ItemStack inventoryItem : inventory.getContents()) {
+            if (inventoryItem == null)
                 continue;
-            if (item.getType() != material)
+            if (!itemFactory.isItem(itemToRemove, inventoryItem))
                 continue;
 
-            int stackAmount = item.getAmount();
+            int stackAmount = inventoryItem.getAmount();
 
             if (stackAmount > toRemove) {
-                item.setAmount(stackAmount - toRemove);
+                inventoryItem.setAmount(stackAmount - toRemove);
                 return true;
             } else {
-                inventory.removeItem(item);
+                inventory.removeItem(inventoryItem);
                 toRemove -= stackAmount;
 
                 if (toRemove == 0)

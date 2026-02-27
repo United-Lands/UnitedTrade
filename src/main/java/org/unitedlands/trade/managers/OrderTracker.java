@@ -106,7 +106,7 @@ public class OrderTracker {
         Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.order-started"),
                 Map.of("remaining", Formatter.formatDuration(timelimit)), messageProvider.get("messages.prefix"));
         tradePoint.addPlayerPickupCooldown(player.getUniqueId());
-        
+
         return true;
     }
 
@@ -182,7 +182,8 @@ public class OrderTracker {
         (new TradeOrderFailedEvent(player, tradepoint, penalty)).callEvent();
     }
 
-    public void handleCompletedOrder(Player player, UUID tradepointId, String orderNo, double payment) {
+    public void handleCompletedOrder(Player player, UUID tradepointId, String orderNo, double payment,
+            List<ItemStack> barterItems) {
 
         TradePoint tradepoint = plugin.getTradePointManager().getTradePoint(tradepointId);
         var event = new TradeOrderCompletedEvent(player, tradepoint, payment);
@@ -212,6 +213,15 @@ public class OrderTracker {
         if (payment != 0) {
             plugin.getEconomyProvider().giveMoneyToPlayer(player, totalPayment, "Order payment");
         }
+
+        if (!barterItems.isEmpty()) {
+            for (var item : barterItems) {
+                var overflow = player.getInventory().addItem(item);
+                for (var set : overflow.entrySet())
+                    player.getLocation().getWorld().dropItemNaturally(player.getLocation(), set.getValue());
+            }
+        }
+
     }
 
     public boolean loadTrackedOrders() {

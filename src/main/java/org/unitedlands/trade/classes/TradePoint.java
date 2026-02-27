@@ -39,6 +39,9 @@ public class TradePoint {
     private boolean enabled = false;
     @Expose
     @Info
+    private boolean replaceBookOnRestock = false;
+    @Expose
+    @Info
     private int currentOrderNo = 1;
     @Expose
     private String facing;
@@ -48,6 +51,9 @@ public class TradePoint {
     @Expose
     @Info
     private String ownerName;
+    @Expose
+    @Info
+    private long customRestockFrequency = 0;
     @Expose
     @Info
     private long pickupCooldown;
@@ -81,6 +87,8 @@ public class TradePoint {
     @Expose
     @Info
     private double reputationOnFail = -5;
+
+    private long lastRestockTime = 0;
 
     public TradePoint() {
 
@@ -265,9 +273,20 @@ public class TradePoint {
         if (block.getType() != Material.LECTERN)
             spawnLectern();
 
-        if (block.getBlockData() instanceof org.bukkit.block.data.type.Lectern lectern) {
-            if (lectern.hasBook())
+        if (customRestockFrequency != 0)
+        {
+            if (System.currentTimeMillis() - lastRestockTime < (customRestockFrequency * 1000))
                 return;
+        }
+
+        if (block.getBlockData() instanceof org.bukkit.block.data.type.Lectern lectern) {
+            if (lectern.hasBook()) {
+                if (this.replaceBookOnRestock) {
+                    removeBook();
+                } else {
+                    return;
+                }
+            }
 
             Random rnd = new Random();
             String randomTemplate = orderTemplates.get(rnd.nextInt(0, orderTemplates.size()));
@@ -301,6 +320,8 @@ public class TradePoint {
 
                     block.getWorld().spawnParticle(restockParticle, loc, 16, 0.5, 0.5, 0.5);
                     block.getWorld().playSound(loc, restockSound, 8f, 1f);
+
+                    lastRestockTime = System.currentTimeMillis();
                 }
             }
 

@@ -9,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.unitedlands.UnitedLib;
+import org.unitedlands.factories.items.IItemFactory;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.classes.TradePoint;
@@ -78,26 +80,38 @@ public class LecternListener implements Listener {
 
         List<DialogBody> dialogBody = new ArrayList<>();
 
-        var baseComponents = TradeOrderBookUtil.getPanelComponents(book);
+        var baseComponents = TradeOrderBookUtil.getBasePanelComponents(book);
         for (var component : baseComponents) {
             dialogBody.add(DialogBody.plainMessage(component));
         }
 
         var miniMessage = MiniMessage.miniMessage();
+        IItemFactory itemFactory = UnitedLib.getInstance().getItemFactory();
+
+        var barterItems = new ArrayList<>(TradeOrderBookUtil.getBarterItems(book));
+        if (!barterItems.isEmpty()) {
+            dialogBody.add(DialogBody.plainMessage(miniMessage.deserialize("<bold>" + messageProvider.get("messages.tradebook.barter") + ":")));
+
+            for (var item : barterItems) {
+                String material = itemFactory.getDisplayName(item);
+                var amount = item.getAmount() + "";
+                item.setAmount(1);
+                dialogBody.add(DialogBody.item(item,
+                        DialogBody.plainMessage(
+                                miniMessage.deserialize("<gold>" + amount + "</gold><gray>x</gray> " + material)),
+                        true, true, 18, 16));
+            }
+        }
+
         var requiredItems = new ArrayList<>(TradeOrderBookUtil.getRequiredItems(book));
+        dialogBody.add(DialogBody.plainMessage(miniMessage.deserialize("<bold>" + messageProvider.get("messages.tradebook.required-items") + ":")));
         for (var item : requiredItems) {
             var amount = item.getAmount() + "";
             item.setAmount(1);
-
-            String material = "";
-            ItemMeta meta = item.getItemMeta();
-            Component displayName = meta.displayName();
-            if (displayName != null) {
-                material = PlainTextComponentSerializer.plainText().serialize(displayName);
-            } else {
-                material = TradeOrderBookUtil.formatReadable(item.getType().toString());
-            }
-            dialogBody.add(DialogBody.item(item, DialogBody.plainMessage(miniMessage.deserialize("<gold>" + amount + "</gold><gray>x</gray> " + material)),
+            String material = itemFactory.getDisplayName(item);
+            dialogBody.add(DialogBody.item(item,
+                    DialogBody.plainMessage(
+                            miniMessage.deserialize("<gold>" + amount + "</gold><gray>x</gray> " + material)),
                     true, true, 18, 16));
         }
 
@@ -110,12 +124,14 @@ public class LecternListener implements Listener {
                                 .action(
                                         DialogAction.customClick(
                                                 (view, audience) -> {
-                                                    if (plugin.getOrderTracker().acceptTradeOrder(player, tradePoint, book)) {
+                                                    if (plugin.getOrderTracker().acceptTradeOrder(player, tradePoint,
+                                                            book)) {
                                                         tradePoint.removeBook();
                                                         var leftover = player.getInventory().addItem(book);
                                                         if (leftover.size() > 0) {
                                                             for (var entry : leftover.entrySet()) {
-                                                                player.getLocation().getWorld().dropItemNaturally(player.getLocation(), entry.getValue());
+                                                                player.getLocation().getWorld().dropItemNaturally(
+                                                                        player.getLocation(), entry.getValue());
                                                             }
                                                         }
                                                     }

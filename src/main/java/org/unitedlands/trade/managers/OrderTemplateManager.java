@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.unitedlands.UnitedLib;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.Order;
+import org.unitedlands.trade.classes.OrderBarterItem;
 import org.unitedlands.trade.classes.OrderTemplate;
 import org.unitedlands.trade.classes.OrderTemplateItemGroup;
 import org.unitedlands.trade.classes.TradePoint;
@@ -58,6 +59,7 @@ public class OrderTemplateManager {
                     OrderTemplate orderTemplate = new OrderTemplate();
 
                     orderTemplate.setTimelimit(configTemplate.getLong("timelimit") * 1000);
+                    orderTemplate.setBarter(configTemplate.getBoolean("barter", false));
                     orderTemplate.setRandomDescriptions(configTemplate.getStringList("random-descriptions"));
 
                     var templateItemSection = configTemplate.getConfigurationSection("order-items");
@@ -84,6 +86,18 @@ public class OrderTemplateManager {
                         orderTemplate.getItemGroups().add(item);
                     }
 
+                    var barterItemsSection = configTemplate.getConfigurationSection("barter-items");
+                    if (barterItemsSection != null) {
+                        for (var barterItemKey : barterItemsSection.getKeys(false)) {
+                            var barterItem = barterItemsSection.getConfigurationSection(barterItemKey);
+                            OrderBarterItem item = new OrderBarterItem();
+                            item.setMaterial(barterItem.getString("material"));
+                            item.setAmount(barterItem.getInt("amount", 0));
+
+                            orderTemplate.getBarterItems().add(item);
+                        }
+                    }
+
                     orderTemplates.put(configTemplateKey, orderTemplate);
                 }
             }
@@ -106,6 +120,8 @@ public class OrderTemplateManager {
 
         var order = new Order();
 
+        order.setBarter(template.isBarter());
+
         var priceConfig = UnitedTrade.getInstance().getPriceConfig().get();
         var globalAdjustment = priceConfig.getDouble("global-adjustment", 1d);
 
@@ -113,8 +129,6 @@ public class OrderTemplateManager {
         for (var item : template.getItemGroups()) {
 
             var amount = item.getRandomAmount();
-            //var pricePerUnit = priceConfig.getDouble(materialGroup + ".price");
-            //var materials = priceConfig.getStringList(materialGroup + ".materials");
 
             var rnd = new Random();
             var materialName = item.getMaterials().get(rnd.nextInt(0, item.getMaterials().size()));
@@ -126,7 +140,17 @@ public class OrderTemplateManager {
             }
         }
 
-        order.setPrice(price);
+        if (!order.isBarter()) {
+            order.setPrice(price);
+        }
+
+        for (var item : template.getBarterItems()) {
+
+            var itemStack = UnitedLib.getInstance().getItemFactory().getItemStack(item.getMaterial(), item.getAmount());
+            if (itemStack != null) {
+                order.getBarterItems().add(itemStack);
+            }
+        }
 
         order.setCustomer(tradePoint.getCleanOwnerName());
         order.setDescription(template.getRandomDescription());

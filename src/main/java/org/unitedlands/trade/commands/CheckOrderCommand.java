@@ -9,15 +9,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.unitedlands.UnitedLib;
+import org.unitedlands.factories.items.IItemFactory;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.utils.TradeOrderBookUtil;
 import org.unitedlands.utils.Messenger;
-
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class CheckOrderCommand implements CommandExecutor {
 
@@ -35,6 +33,7 @@ public class CheckOrderCommand implements CommandExecutor {
             @NotNull String @NotNull [] args) {
 
         Player player = (Player) sender;
+        IItemFactory itemFactory = UnitedLib.getInstance().getItemFactory();
 
         var book = player.getInventory().getItemInMainHand();
         if (book == null || !TradeOrderBookUtil.isTradeOrderBook(book)) {
@@ -52,14 +51,7 @@ public class CheckOrderCommand implements CommandExecutor {
         } else {
             List<String> missing = new ArrayList<>();
             for (ItemStack item : missingItems) {
-                String itemStr = "";
-                ItemMeta meta = item.getItemMeta();
-                Component displayName = meta.displayName();
-                if (displayName != null) {
-                    itemStr += PlainTextComponentSerializer.plainText().serialize(displayName);
-                } else {
-                    itemStr = TradeOrderBookUtil.formatReadable(item.getType().toString());
-                }
+                String itemStr = itemFactory.getDisplayName(item);
                 itemStr += " x" + item.getAmount();
                 missing.add(itemStr);
             }

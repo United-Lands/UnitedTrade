@@ -28,7 +28,7 @@ public class AdminTradePointsRemoveTemplateHandler extends BaseCommandHandler<Un
     @Override
     public void handleCommand(CommandSender sender, String[] args) {
 
-        if (args.length != 0) {
+        if (args.length != 1) {
             Messenger.sendMessage(sender, messageProvider.get("messages.usage.removetemplate-tradepoint"), null,
                     messageProvider.get("messages.prefix"));
             return;
