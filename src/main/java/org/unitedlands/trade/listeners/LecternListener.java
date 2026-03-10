@@ -8,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.unitedlands.UnitedLib;
 import org.unitedlands.factories.items.IItemFactory;
 import org.unitedlands.trade.UnitedTrade;
@@ -16,6 +15,7 @@ import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.classes.TradePoint;
 import org.unitedlands.trade.integrations.floodgate.FloodgateAPIIntegration;
 import org.unitedlands.trade.utils.TradeOrderBookUtil;
+
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.event.player.PlayerInsertLecternBookEvent;
 import io.papermc.paper.registry.data.dialog.ActionButton;
@@ -26,7 +26,6 @@ import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class LecternListener implements Listener {
 

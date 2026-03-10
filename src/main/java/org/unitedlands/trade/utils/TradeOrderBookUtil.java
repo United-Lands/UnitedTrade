@@ -26,7 +26,6 @@ import org.unitedlands.utils.Logger;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class TradeOrderBookUtil {
 
@@ -149,8 +148,10 @@ public class TradeOrderBookUtil {
 
         String content = "§7" + description + "§r\n\n";
         if (!barter) {
-            content += "§l" + messageProvider.get("messages.tradebook.payment") + ": §2" + String.format("%,.2f", price) + "§r\n";
-            content += "§l" + messageProvider.get("messages.tradebook.payment") + ": §c" + String.format("%,.2f", penalty) + "§r\n";
+            content += "§l" + messageProvider.get("messages.tradebook.payment") + ": §2" + String.format("%,.2f", price)
+                    + "§r\n";
+            content += "§l" + messageProvider.get("messages.tradebook.payment") + ": §c"
+                    + String.format("%,.2f", penalty) + "§r\n";
         }
         if (!barterItems.isEmpty()) {
             var barterItemStr = "";
@@ -193,12 +194,14 @@ public class TradeOrderBookUtil {
         components.add(miniMessage.deserialize("<gray>" + description + "</gray><br>"));
 
         var paymentLines = "";
-        if (!barter)
-        {
-            paymentLines += "<bold>" + messageProvider.get("messages.tradebook.payment")  + ": </bold><dark_green>" + String.format("%,.2f", price) + "</dark_green><br>" +
-                            "<bold>" + messageProvider.get("messages.tradebook.penalty") + ": </bold><red>" + String.format("%,.2f", penalty) + "</red><br>";
+        if (!barter) {
+            paymentLines += "<bold>" + messageProvider.get("messages.tradebook.payment") + ": </bold><dark_green>"
+                    + String.format("%,.2f", price) + "</dark_green><br>" +
+                    "<bold>" + messageProvider.get("messages.tradebook.penalty") + ": </bold><red>"
+                    + String.format("%,.2f", penalty) + "</red><br>";
         }
-        paymentLines += "<bold>" + messageProvider.get("messages.tradebook.timelimit") + ": </bold><gold>" + timelimit + "<gold>";
+        paymentLines += "<bold>" + messageProvider.get("messages.tradebook.timelimit") + ": </bold><gold>" + timelimit
+                + "<gold>";
 
         components.add(miniMessage.deserialize(paymentLines));
         return components;
@@ -346,23 +349,6 @@ public class TradeOrderBookUtil {
 
     private static NamespacedKey getKey(String name) {
         return new NamespacedKey(UnitedTrade.getInstance(), name);
-    }
-
-    public static String formatReadable(String name) {
-        StringBuilder result = new StringBuilder(name.length());
-
-        for (String part : name.split("_")) {
-            if (part.isEmpty())
-                continue;
-
-            // Capitalize first letter, lower-case remaining letters
-            result.append(Character.toUpperCase(part.charAt(0)))
-                    .append(part.substring(1).toLowerCase())
-                    .append(' ');
-        }
-
-        // Trim trailing space
-        return result.toString().trim();
     }
 
     public static List<ItemStack> getMissingItems(Player player, List<ItemStack> required) {

@@ -269,6 +269,9 @@ public class TradePoint {
         if (this.orderTemplates == null || this.orderTemplates.isEmpty())
             return;
 
+        if (!this.getLocation().getChunk().isLoaded())
+            return;
+        
         Block block = this.location.getBlock();
         if (block.getType() != Material.LECTERN)
             spawnLectern();
