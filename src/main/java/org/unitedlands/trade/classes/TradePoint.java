@@ -78,15 +78,15 @@ public class TradePoint {
 
     @Expose
     @Info
-    private double minReputation = 0;
+    private double minReputation = -200;
 
     @Expose
     @Info
-    private double reputationOnComplete = 5;
+    private double reputationOnComplete = 0;
 
     @Expose
     @Info
-    private double reputationOnFail = -5;
+    private double reputationOnFail = 0;
 
     private long lastRestockTime = 0;
 
@@ -271,13 +271,12 @@ public class TradePoint {
 
         if (!this.getLocation().getChunk().isLoaded())
             return;
-        
+
         Block block = this.location.getBlock();
         if (block.getType() != Material.LECTERN)
             spawnLectern();
 
-        if (customRestockFrequency != 0)
-        {
+        if (customRestockFrequency != 0) {
             if (System.currentTimeMillis() - lastRestockTime < (customRestockFrequency * 1000))
                 return;
         }
@@ -311,18 +310,20 @@ public class TradePoint {
                     Particle restockParticle = Particle.DUST_PLUME;
                     try {
                         restockParticle = Registry.PARTICLE_TYPE.get(TypedKey.create(RegistryKey.PARTICLE_TYPE,
-                                UnitedTrade.getInstance().getConfig().getString("effects.complete-particle")));
+                                UnitedTrade.getInstance().getConfig().getString("effects.restock-particle")));
                     } catch (Exception ignore) {
                     }
                     Sound restockSound = Sound.ENTITY_ENDERMITE_DEATH;
+                    Double restockVolume = 1.0;
                     try {
                         restockSound = Registry.SOUNDS.get(TypedKey.create(RegistryKey.SOUND_EVENT,
-                                UnitedTrade.getInstance().getConfig().getString("effects.complete-sound")));
+                                UnitedTrade.getInstance().getConfig().getString("effects.restock-sound")));
+                        restockVolume = UnitedTrade.getInstance().getConfig().getDouble("effects.restock-volume", 1.0);
                     } catch (Exception ignore) {
                     }
 
                     block.getWorld().spawnParticle(restockParticle, loc, 16, 0.5, 0.5, 0.5);
-                    block.getWorld().playSound(loc, restockSound, 8f, 1f);
+                    block.getWorld().playSound(loc, restockSound, restockVolume.floatValue(), 1f);
 
                     lastRestockTime = System.currentTimeMillis();
                 }

@@ -12,6 +12,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -22,6 +23,7 @@ import org.unitedlands.factories.items.IItemFactory;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.DropoffPoint;
 import org.unitedlands.trade.classes.MessageProvider;
+import org.unitedlands.trade.classes.OrderItem;
 import org.unitedlands.trade.classes.ShopPoint;
 import org.unitedlands.trade.classes.events.ShopOpenEvent;
 import org.unitedlands.trade.utils.TradeOrderBookUtil;
@@ -41,7 +43,7 @@ public class DropoffPointListener implements Listener {
         this.messageProvider = messageProvider;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onDropoffInteract(PlayerInteractEvent event) {
 
         if (event.getClickedBlock() == null)
@@ -107,7 +109,9 @@ public class DropoffPointListener implements Listener {
             return;
         }
 
-        var tradepointId = TradeOrderBookUtil.getTradepointId(book);
+        var order = TradeOrderBookUtil.getOrder(book);
+
+        var tradepointId = order.getTradepointId();
         if (tradepointId != null && !dropffPoint.getTradepointId().equals(tradepointId)) {
             Messenger.sendMessage(player, messageProvider.get("messages.errors.wrong-tradepoint"), null,
                     messageProvider.get("messages.prefix"));
@@ -116,7 +120,7 @@ public class DropoffPointListener implements Listener {
 
         var orderTracker = plugin.getOrderTracker();
 
-        var orderID = TradeOrderBookUtil.getOrderId(book);
+        var orderID = order.getId();
         var trackedOrder = orderTracker.getTrackedOrder(orderID);
 
         if (trackedOrder == null) {
@@ -126,7 +130,9 @@ public class DropoffPointListener implements Listener {
             return;
         }
 
-        var requiredItems = TradeOrderBookUtil.getRequiredItems(book);
+        var requiredItems = order.getRequiredItems();
+        var barterItems = order.getBarterItems();
+
         List<ItemStack> missingItems = TradeOrderBookUtil.getMissingItems(player, requiredItems);
 
         if (!missingItems.isEmpty()) {
@@ -146,16 +152,15 @@ public class DropoffPointListener implements Listener {
         } else {
 
             var inventory = player.getInventory();
-            var itemsToRemove = TradeOrderBookUtil.getRequiredItems(book);
-            for (ItemStack itemStack : itemsToRemove) {
-                removeItems(inventory, itemStack, itemStack.getAmount());
+            double payout = 0f;
+
+            for (OrderItem orderItem : requiredItems) {
+                var removedItems = orderItem.removeFromInventory(inventory);
+                payout += removedItems * orderItem.getPrice();
             }
             inventory.setItemInMainHand(new ItemStack(Material.AIR));
 
-            var price = TradeOrderBookUtil.getPrice(book);
-            var orderNo = TradeOrderBookUtil.getOrderNo(book);
-            var barterItems = TradeOrderBookUtil.getBarterItems(book);
-            orderTracker.handleCompletedOrder(player, tradepointId, orderNo, price, barterItems);
+            orderTracker.handleCompletedOrder(player, tradepointId, trackedOrder.getOrderNo(), payout, barterItems);
 
             Particle completeParticle = Particle.HAPPY_VILLAGER;
             try {
@@ -164,17 +169,19 @@ public class DropoffPointListener implements Listener {
             } catch (Exception ignore) {
             }
             Sound completeSound = Sound.ENTITY_PLAYER_LEVELUP;
+            Double completeVolume = 1.0;
             try {
                 completeSound = Registry.SOUNDS.get(TypedKey.create(RegistryKey.SOUND_EVENT,
                         plugin.getConfig().getString("effects.complete-sound")));
+                completeVolume = UnitedTrade.getInstance().getConfig().getDouble("effects.complete-volume", 1.0);
             } catch (Exception ignore) {
             }
 
             Location loc = block.getLocation().clone().add(0.5, 0.5, 0.5);
             block.getWorld().spawnParticle(completeParticle, loc, 16, 0.5, 0.5, 0.5);
-            block.getWorld().playSound(loc, completeSound, 8f, 1f);
+            block.getWorld().playSound(loc, completeSound, completeVolume.floatValue(), 1f);
 
-            orderTracker.removeTrackedOrder(TradeOrderBookUtil.getOrderId(book));
+            orderTracker.removeTrackedOrder(order.getId());
 
             Messenger.sendMessage(player, messageProvider.get("messages.checkorder.complete"), null,
                     messageProvider.get("messages.prefix"));
@@ -186,7 +193,7 @@ public class DropoffPointListener implements Listener {
         int toRemove = amount;
 
         var itemFactory = UnitedLib.getInstance().getItemFactory();
-        
+
         for (ItemStack inventoryItem : inventory.getContents()) {
             if (inventoryItem == null)
                 continue;

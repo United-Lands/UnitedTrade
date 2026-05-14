@@ -1,6 +1,5 @@
 package org.unitedlands.trade.listeners;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -8,14 +7,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.unitedlands.UnitedLib;
-import org.unitedlands.factories.items.IItemFactory;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.classes.TradePoint;
 import org.unitedlands.trade.integrations.floodgate.FloodgateAPIIntegration;
 import org.unitedlands.trade.utils.TradeOrderBookUtil;
-
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.event.player.PlayerInsertLecternBookEvent;
 import io.papermc.paper.registry.data.dialog.ActionButton;
@@ -25,7 +21,6 @@ import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class LecternListener implements Listener {
 
@@ -77,45 +72,10 @@ public class LecternListener implements Listener {
 
     private void handleJavaDialogue(Player player, TradePoint tradePoint, ItemStack book) {
 
-        List<DialogBody> dialogBody = new ArrayList<>();
-
-        var baseComponents = TradeOrderBookUtil.getBasePanelComponents(book);
-        for (var component : baseComponents) {
-            dialogBody.add(DialogBody.plainMessage(component));
-        }
-
-        var miniMessage = MiniMessage.miniMessage();
-        IItemFactory itemFactory = UnitedLib.getInstance().getItemFactory();
-
-        var barterItems = new ArrayList<>(TradeOrderBookUtil.getBarterItems(book));
-        if (!barterItems.isEmpty()) {
-            dialogBody.add(DialogBody.plainMessage(miniMessage.deserialize("<bold>" + messageProvider.get("messages.tradebook.barter") + ":")));
-
-            for (var item : barterItems) {
-                String material = itemFactory.getDisplayName(item);
-                var amount = item.getAmount() + "";
-                item.setAmount(1);
-                dialogBody.add(DialogBody.item(item,
-                        DialogBody.plainMessage(
-                                miniMessage.deserialize("<gold>" + amount + "</gold><gray>x</gray> " + material)),
-                        true, true, 18, 16));
-            }
-        }
-
-        var requiredItems = new ArrayList<>(TradeOrderBookUtil.getRequiredItems(book));
-        dialogBody.add(DialogBody.plainMessage(miniMessage.deserialize("<bold>" + messageProvider.get("messages.tradebook.required-items") + ":")));
-        for (var item : requiredItems) {
-            var amount = item.getAmount() + "";
-            item.setAmount(1);
-            String material = itemFactory.getDisplayName(item);
-            dialogBody.add(DialogBody.item(item,
-                    DialogBody.plainMessage(
-                            miniMessage.deserialize("<gold>" + amount + "</gold><gray>x</gray> " + material)),
-                    true, true, 18, 16));
-        }
-
+        List<DialogBody> dialogBody = TradeOrderBookUtil.getJavaPanelContent(book);
+        
         Dialog dialog = Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text(tradePoint.getCleanOwnerName() + "'s Trade Order"))
+                .base(DialogBase.builder(Component.text("Trade Order"))
                         .body(dialogBody)
                         .build())
                 .type(DialogType.confirmation(

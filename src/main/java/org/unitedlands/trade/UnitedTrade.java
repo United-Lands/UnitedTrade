@@ -10,6 +10,7 @@ import org.unitedlands.trade.commands.CheckOrderCommand;
 import org.unitedlands.trade.integrations.interfaces.DefaultEconomyProvider;
 import org.unitedlands.trade.integrations.interfaces.IEconomyProvider;
 import org.unitedlands.trade.integrations.interfaces.VaultEcononyProvider;
+import org.unitedlands.trade.listeners.BookListener;
 import org.unitedlands.trade.listeners.DropoffPointListener;
 import org.unitedlands.trade.listeners.InventoryListener;
 import org.unitedlands.trade.listeners.LecternListener;
@@ -74,6 +75,7 @@ public class UnitedTrade extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new LecternListener(this, messageProvider), this);
         getServer().getPluginManager().registerEvents(new ServerListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(this, messageProvider), this);
+        getServer().getPluginManager().registerEvents(new BookListener(this), this);
     }
 
     private void registerCommands() {

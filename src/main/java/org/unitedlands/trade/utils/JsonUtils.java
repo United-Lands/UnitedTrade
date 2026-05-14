@@ -12,7 +12,6 @@ import java.lang.reflect.Type;
 import org.bukkit.Location;
 import org.unitedlands.trade.utils.serializers.LocationDeserializer;
 import org.unitedlands.trade.utils.serializers.LocationSerializer;
-import org.unitedlands.utils.Logger;
 
 public class JsonUtils {
 
@@ -26,7 +25,6 @@ public class JsonUtils {
     public static boolean saveObjectToFile(Object obj, File file) throws IOException {
         try (FileWriter writer = new FileWriter(file)) {
             gson.toJson(obj, writer);
-            Logger.log("JSON written.", "UnitedTrade");
             return true;
         } catch (IOException e) {
             throw e;

@@ -28,9 +28,7 @@ public class FloodgateAPIIntegration {
     }
 
     public void sendTradePointOrderPanel(Player player, TradePoint tradePoint, ItemStack book) {
-
-        var content = TradeOrderBookUtil.getFloodgateContent(book);
-
+        var content = TradeOrderBookUtil.getFloodgatePanelContent(book);
         FloodgatePlayer floodgateplayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
         floodgateplayer.sendForm(
                 SimpleForm.builder()
@@ -40,8 +38,16 @@ public class FloodgateAPIIntegration {
                         .validResultHandler(response -> handleClick(player, tradePoint, book)));
     }
 
-    private void handleClick(Player player, TradePoint tradePoint, ItemStack book) {
+    public void sendBookPanel(Player player, ItemStack book) {
+        var content = TradeOrderBookUtil.getFloodgatePanelContent(book);
+        FloodgatePlayer floodgateplayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
+        floodgateplayer.sendForm(
+                SimpleForm.builder()
+                        .title("Trade Order")
+                        .content(content));
+    }
 
+    private void handleClick(Player player, TradePoint tradePoint, ItemStack book) {
         if (plugin.getOrderTracker().acceptTradeOrder(player, tradePoint, book)) {
             tradePoint.removeBook();
             var leftover = player.getInventory().addItem(book);
