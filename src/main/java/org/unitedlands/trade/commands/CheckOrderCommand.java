@@ -42,7 +42,7 @@ public class CheckOrderCommand implements CommandExecutor {
             return false;
         }
 
-        var requiredItems = TradeOrderBookUtil.getRequiredItems(book);
+        var requiredItems = TradeOrderBookUtil.getOrder(book).getRequiredItems();
         List<ItemStack> missingItems = TradeOrderBookUtil.getMissingItems(player, requiredItems);
 
         if (missingItems.isEmpty()) {
@@ -55,7 +55,6 @@ public class CheckOrderCommand implements CommandExecutor {
                 itemStr += " x" + item.getAmount();
                 missing.add(itemStr);
             }
-
             Messenger.sendMessage(player, messageProvider.get("messages.checkorder.missing"),
                     Map.of("missing", String.join(", ", missing)), messageProvider.get("messages.prefix"));
 

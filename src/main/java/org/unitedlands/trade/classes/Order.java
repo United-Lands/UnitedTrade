@@ -3,6 +3,7 @@ package org.unitedlands.trade.classes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.bukkit.inventory.ItemStack;
 
@@ -11,21 +12,20 @@ public class Order {
     private UUID id;
     private UUID tradepointId;
     private Integer orderNo;
-    private List<ItemStack> requiredItems = new ArrayList<>();
+    private List<OrderItem> requiredItems = new ArrayList<>();
     private List<ItemStack> barterItems = new ArrayList<>();
     private String customer;
     private String description;
     private long timelimit;
     private boolean barter;
 
-    private double price = 0.0d;
     private double penalty = 0.0d;
 
     public Order() {
         this.id = UUID.randomUUID();
     }
 
-    public Order(UUID id, List<ItemStack> requiredItems, String customer, String description) {
+    public Order(UUID id, List<OrderItem> requiredItems, String customer, String description) {
         this.id = UUID.randomUUID();
         this.requiredItems = requiredItems;
         this.customer = customer;
@@ -40,11 +40,11 @@ public class Order {
         this.id = id;
     }
 
-    public List<ItemStack> getRequiredItems() {
+    public List<OrderItem> getRequiredItems() {
         return requiredItems;
     }
 
-    public void setRequiredItems(List<ItemStack> requiredItems) {
+    public void setRequiredItems(List<OrderItem> requiredItems) {
         this.requiredItems = requiredItems;
     }
 
@@ -88,12 +88,12 @@ public class Order {
         this.barter = barter;
     }
 
-    public double getPrice() {
-        return price;
+    public double getMinPayout() {
+        return requiredItems.stream().collect(Collectors.summingDouble(OrderItem::getMinPayout));
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public double getMaxPayout() {
+        return requiredItems.stream().collect(Collectors.summingDouble(OrderItem::getMaxPayout));
     }
 
     public UUID getTradepointId() {

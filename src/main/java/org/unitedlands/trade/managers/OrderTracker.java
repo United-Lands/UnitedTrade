@@ -94,13 +94,16 @@ public class OrderTracker {
             return false;
         }
 
-        var orderId = TradeOrderBookUtil.getOrderId(book);
-        var orderNo = TradeOrderBookUtil.getOrderNo(book);
-        var timelimit = TradeOrderBookUtil.getTimelimit(book);
-        var penalty = TradeOrderBookUtil.getPenalty(book);
+        var order = TradeOrderBookUtil.getOrder(book);
+        var timelimit = order.getTimelimit();
 
-        var orderTrackerItem = new OrderTrackerItem(orderId, orderNo, tradePoint.getId(), player.getUniqueId(),
-                penalty, System.currentTimeMillis() + timelimit);
+        var orderTrackerItem = new OrderTrackerItem(
+            order.getId(), 
+            String.format("%08d", order.getOrderNo()), 
+            tradePoint.getId(), 
+            player.getUniqueId(),
+            order.getPenalty(), 
+            System.currentTimeMillis() + timelimit);
         addTrackedOrder(orderTrackerItem);
 
         Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.order-started"),

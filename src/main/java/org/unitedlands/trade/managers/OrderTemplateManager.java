@@ -11,6 +11,7 @@ import org.unitedlands.UnitedLib;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.Order;
 import org.unitedlands.trade.classes.OrderBarterItem;
+import org.unitedlands.trade.classes.OrderItem;
 import org.unitedlands.trade.classes.OrderTemplate;
 import org.unitedlands.trade.classes.OrderTemplateItemGroup;
 import org.unitedlands.trade.classes.TradePoint;
@@ -125,23 +126,21 @@ public class OrderTemplateManager {
         var priceConfig = UnitedTrade.getInstance().getPriceConfig().get();
         var globalAdjustment = priceConfig.getDouble("global-adjustment", 1d);
 
-        var price = 0d;
         for (var item : template.getItemGroups()) {
-
-            var amount = item.getRandomAmount();
 
             var rnd = new Random();
             var materialName = item.getMaterials().get(rnd.nextInt(0, item.getMaterials().size()));
+            var itemStack = UnitedLib.getInstance().getItemFactory().getItemStack(materialName, 1);
 
-            var itemStack = UnitedLib.getInstance().getItemFactory().getItemStack(materialName, amount);
+            var minAmount = item.getMinUnits() * item.getUnitSize();
+            var maxAmount = item.getMaxUnits() * item.getUnitSize();
+            var price = priceConfig.getDouble("materials." + materialName, 0d) * globalAdjustment;
+
+            var orderItem = new OrderItem(itemStack, minAmount, maxAmount, price);
+
             if (itemStack != null) {
-                order.getRequiredItems().add(itemStack);
-                price += priceConfig.getDouble("materials." + materialName, 0d) * globalAdjustment * amount;
+                order.getRequiredItems().add(orderItem);
             }
-        }
-
-        if (!order.isBarter()) {
-            order.setPrice(price);
         }
 
         for (var item : template.getBarterItems()) {
@@ -159,7 +158,7 @@ public class OrderTemplateManager {
             order.setTradepointId(tradePoint.getId());
             order.setOrderNo(tradePoint.getAndRaiseOrderNo());
             if (tradePoint.applyContractPenalties()) {
-                order.setPenalty(price * tradePoint.getContractPenalty());
+                order.setPenalty(order.getMinPayout() * tradePoint.getContractPenalty());
             }
         }
 

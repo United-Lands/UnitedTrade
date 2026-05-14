@@ -9,8 +9,10 @@ take-command: "cmi money take {user} {amount}"
 effects:
   complete-particle: wax_off
   complete-sound: block.note_block.banjo
+  complete-volume: 0.8
   restock-particle: smoke
   restock-sound: block.note_block.didgeridoo
+  restock-volume: 0.8
 
 messages:
   prefix: "<bold><red>U</red><white>L</white> Trade <dark_gray>» </dark_gray></bold>"
