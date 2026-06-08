@@ -102,9 +102,13 @@ public class OrderItem {
 
         for (int i = 0; i < contents.length && remaining > 0; i++) {
             ItemStack stack = contents[i];
+            
+            if (stack == null || stack.getType() == Material.AIR)
+                continue;
+
             var itemId = itemFactory.getFilterName(stack);
 
-            if (stack == null || !itemId.equals(orderItemId))
+            if (!itemId.equals(orderItemId))
                 continue;
 
             if (stack.getAmount() <= remaining) {
