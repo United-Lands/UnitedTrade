@@ -20,14 +20,19 @@ public class AdminTradePointsSetHandler extends BaseCommandHandler<UnitedTrade> 
         super(plugin, messageProvider);
     }
 
-    private List<String> propertyList = Arrays.asList("currentOrderNo", "enabled", "name", "ownerName",
+    private List<String> propertyList = List.of("currentOrderNo", "enabled", "name", "ownerName",
             "pickupCooldown", "applyContractPenalties", "contractPenalty", "requiredPermissions",
-            "blacklistedPermissions", "replaceBookOnRestock", "customRestockFrequency", "minReputation", "reputationOnComplete", "reputationOnFail");
+            "blacklistedPermissions", "replaceBookOnRestock", "customRestockFrequency", "minReputation",
+            "reputationOnComplete", "reputationOnFail");
+    private List<String> multiWordPropertyList = List.of("requiredPermissionsError", "blacklistedPermissionsError");
 
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
-        if (args.length == 1)
-            return propertyList;
+        if (args.length == 1) {
+            var fullList = new ArrayList<String>(propertyList);
+            fullList.addAll(multiWordPropertyList);
+            return fullList;
+        }
         return new ArrayList<>();
     }
 
@@ -48,7 +53,11 @@ public class AdminTradePointsSetHandler extends BaseCommandHandler<UnitedTrade> 
             return;
         }
 
-        setField(player, tradePoint, args[0], args[1]);
+        if (multiWordPropertyList.contains(args[0])) {
+            setField(player, tradePoint, args[0], String.join(" ", Arrays.copyOfRange(args, 1, args.length)));
+        } else {
+            setField(player, tradePoint, args[0], args[1]);
+        }
 
         plugin.getTradePointManager().saveTradePoint(tradePoint, sender);
     }

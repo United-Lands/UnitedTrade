@@ -74,7 +74,14 @@ public class TradePoint {
     private String requiredPermissions;
     @Expose
     @Info
+    private String requiredPermissionsError;
+
+    @Expose
+    @Info
     private String blacklistedPermissions;
+    @Expose
+    @Info
+    private String blacklistedPermissionsError;
 
     @Expose
     @Info
@@ -203,6 +210,22 @@ public class TradePoint {
         this.blacklistedPermissions = blacklistedPermissions;
     }
 
+    public String getRequiredPermissionsError() {
+        return requiredPermissionsError;
+    }
+
+    public void setRequiredPermissionsError(String requiredPermissionsError) {
+        this.requiredPermissionsError = requiredPermissionsError;
+    }
+
+    public String getBlacklistedPermissionsError() {
+        return blacklistedPermissionsError;
+    }
+
+    public void setBlacklistedPermissionsError(String blacklistedPermissionsError) {
+        this.blacklistedPermissionsError = blacklistedPermissionsError;
+    }
+
     public double getMinReputation() {
         return minReputation;
     }
@@ -259,6 +282,14 @@ public class TradePoint {
             return true;
 
         return false;
+    }
+
+    public long getPlayerPickupCooldownRemaining(UUID playerId) {
+        var cooldownStart = playerPickupCooldowns.get(playerId);
+        if (cooldownStart == null)
+            return 0;
+
+        return (pickupCooldown * 1000) - (System.currentTimeMillis() - cooldownStart);
     }
 
     public void restock() {

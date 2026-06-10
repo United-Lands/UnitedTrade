@@ -49,12 +49,15 @@ public class LecternListener implements Listener {
 
         event.setCancelled(true);
 
+        var player = event.getPlayer();
+
+        if (!plugin.getOrderTracker().hasPickupRequirements(player, tradePoint))
+            return;
+
         var book = tradePoint.getBook();
         if (book == null) {
             return;
         }
-
-        var player = event.getPlayer();
 
         // Show different UIs to Java and Bedrock players if floodgate is present
         if (!plugin.useFloodgate()) {
@@ -73,7 +76,7 @@ public class LecternListener implements Listener {
     private void handleJavaDialogue(Player player, TradePoint tradePoint, ItemStack book) {
 
         List<DialogBody> dialogBody = TradeOrderBookUtil.getJavaPanelContent(book);
-        
+
         Dialog dialog = Dialog.create(builder -> builder.empty()
                 .base(DialogBase.builder(Component.text("Trade Order"))
                         .body(dialogBody)

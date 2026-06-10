@@ -106,8 +106,13 @@ public class UnitedTrade extends JavaPlugin {
     private void loadIntegrations() {
         Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
         if (vault != null && vault.isEnabled()) {
-            Logger.log("Enabling Vault integrations.", "UnitedTrade");
-            economyProvider = new VaultEcononyProvider(this, messageProvider);
+            try {
+                Logger.log("Enabling Vault integrations.", "UnitedTrade");
+                economyProvider = new VaultEcononyProvider(this, messageProvider);
+            } catch (Exception ex) {
+                Logger.logWarning("Error enabling Vault, falling back to default economy integration.", "UnitedTrade");
+                economyProvider = new DefaultEconomyProvider(this, messageProvider);
+            }
         } else {
             economyProvider = new DefaultEconomyProvider(this, messageProvider);
         }
@@ -115,7 +120,7 @@ public class UnitedTrade extends JavaPlugin {
         if (floodgate != null && vault.isEnabled()) {
             Logger.log("Enabling floodgate integrations.", "UnitedTrade");
             useFloodgate = true;
-        } 
+        }
 
     }
 

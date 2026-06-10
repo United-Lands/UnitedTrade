@@ -44,11 +44,14 @@ public class OrderTracker {
         this.messageProvider = messageProvider;
     }
 
-    public boolean acceptTradeOrder(Player player, TradePoint tradePoint, ItemStack book) {
+    public boolean hasPickupRequirements(Player player, TradePoint tradePoint) {
 
         if (tradePoint.isPlayerOnPickupCooldown(player.getUniqueId())) {
+            var cooldownMillis = tradePoint.getPickupCooldown() * 1000;
+            var remaining = tradePoint.getPlayerPickupCooldownRemaining(player.getUniqueId());
             Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.on-cooldown"),
-                    Map.of("cooldown", Formatter.formatDuration(tradePoint.getPickupCooldown() * 1000)),
+                    Map.of("cooldown", Formatter.formatDuration(cooldownMillis),
+                            "remaining", Formatter.formatDuration(remaining)),
                     messageProvider.get("messages.prefix"));
             return false;
         }
@@ -63,9 +66,15 @@ public class OrderTracker {
             }
 
             if (!playerHasAllRequiredPermissions) {
-                Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.permission-error"), null,
-                        messageProvider.get("messages.prefix"));
-                return false;
+                if (tradePoint.getRequiredPermissionsError() != null) {
+                    Messenger.sendMessage(player, "<red>" + tradePoint.getRequiredPermissionsError() + "</red>", null,
+                            messageProvider.get("messages.prefix"));
+                    return false;
+                } else {
+                    Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.permission-error"), null,
+                            messageProvider.get("messages.prefix"));
+                    return false;
+                }
             }
         }
 
@@ -79,11 +88,26 @@ public class OrderTracker {
             }
 
             if (playerHasBlacklistedPermission) {
-                Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.permission-error"), null,
-                        messageProvider.get("messages.prefix"));
-                return false;
+                if (tradePoint.getBlacklistedPermissionsError() != null) {
+                    Messenger.sendMessage(player, "<red>" + tradePoint.getBlacklistedPermissionsError() + "</red>",
+                            null,
+                            messageProvider.get("messages.prefix"));
+                    return false;
+                } else {
+                    Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.permission-error"), null,
+                            messageProvider.get("messages.prefix"));
+                    return false;
+                }
             }
         }
+
+        return true;
+    }
+
+    public boolean acceptTradeOrder(Player player, TradePoint tradePoint, ItemStack book) {
+
+        if (!hasPickupRequirements(player, tradePoint))
+            return false;
 
         var preTakeEvent = new TradeOrderBookPreTakeEvent(player, tradePoint);
         preTakeEvent.callEvent();
@@ -98,12 +122,12 @@ public class OrderTracker {
         var timelimit = order.getTimelimit();
 
         var orderTrackerItem = new OrderTrackerItem(
-            order.getId(), 
-            String.format("%08d", order.getOrderNo()), 
-            tradePoint.getId(), 
-            player.getUniqueId(),
-            order.getPenalty(), 
-            System.currentTimeMillis() + timelimit);
+                order.getId(),
+                String.format("%08d", order.getOrderNo()),
+                tradePoint.getId(),
+                player.getUniqueId(),
+                order.getPenalty(),
+                System.currentTimeMillis() + timelimit);
         addTrackedOrder(orderTrackerItem);
 
         Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.order-started"),

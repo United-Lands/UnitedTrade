@@ -6,9 +6,9 @@
 
   <groupId>org.unitedlands.trade</groupId>
   <artifactId>UnitedTrade</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 
-  <name>UnitedCatch</name>
+  <name>UnitedTrade</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
