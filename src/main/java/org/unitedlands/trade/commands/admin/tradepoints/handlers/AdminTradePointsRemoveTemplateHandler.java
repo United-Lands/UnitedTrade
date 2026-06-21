@@ -43,8 +43,13 @@ public class AdminTradePointsRemoveTemplateHandler extends BaseCommandHandler<Un
             return;
         }
 
-        if (tradePoint.getOrderTemplates().remove(args[0]))
+        if (args[0].equals("ALL")) {
+            tradePoint.getOrderTemplates().clear();
             plugin.getTradePointManager().saveTradePoint(tradePoint, sender);
+        } else {
+            if (tradePoint.getOrderTemplates().remove(args[0]))
+                plugin.getTradePointManager().saveTradePoint(tradePoint, sender);
+        }
     }
 
 }

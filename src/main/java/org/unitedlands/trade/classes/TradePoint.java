@@ -65,7 +65,9 @@ public class TradePoint {
     private double contractPenalty = 0.1d;
 
     @Expose
+    @Info
     private List<String> orderTemplates = new ArrayList<>();
+
     @Expose
     private Map<UUID, Long> playerPickupCooldowns = new HashMap<>();
 

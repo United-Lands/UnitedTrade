@@ -114,7 +114,7 @@ public class OrderTemplateManager {
     public Order generateRandomOrder(String templateName, TradePoint tradePoint) {
 
         var template = orderTemplates.get(templateName);
-        if (templateName == null) {
+        if (template == null) {
             Logger.logWarning("Unknown template name: " + templateName, "UnitedTrade");
             return null;
         }
