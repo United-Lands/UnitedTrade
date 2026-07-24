@@ -61,8 +61,6 @@ public class UnitedTrade extends JavaPlugin {
         registerEvents();
         registerCommands();
 
-        loadIntegrations();
-
         Logger.log("UnitedTrade initialized.", "UnitedTrade");
     }
 
@@ -103,7 +101,7 @@ public class UnitedTrade extends JavaPlugin {
         }
     }
 
-    private void loadIntegrations() {
+    public void loadIntegrations() {
         Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
         if (vault != null && vault.isEnabled()) {
             try {

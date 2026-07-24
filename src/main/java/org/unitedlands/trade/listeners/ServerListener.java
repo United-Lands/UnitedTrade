@@ -15,6 +15,7 @@ public class ServerListener implements Listener {
 
     @EventHandler
     public void onServerLoad(ServerLoadEvent event) {
+        plugin.loadIntegrations();
         plugin.getTradePointManager().loadTradePoints();
         plugin.getOrderTemplateManager().loadTemplates();
         plugin.getShopTemplateManager().loadTemplates();

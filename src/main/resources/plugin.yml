@@ -1,7 +1,7 @@
 name: UnitedTrade
 version: 1.0
 main: org.unitedlands.trade.UnitedTrade
-api-version: 1.18
+api-version: 1.21
 description: A custom United Lands plugin that for NPC trades.
 author: Theriel_
 depend: [ UnitedLib ]

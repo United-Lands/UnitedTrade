@@ -460,3 +460,11 @@ materials:
   "food:pretzel" : 25.0
   "food:tortilla" : 9.0
 
+# ---------
+#   Potions
+#----------
+
+# Vanilla
+
+  "POTION:STRENGTH" : 5.0
+  "POTION:SLOWNESS" : 20.0
