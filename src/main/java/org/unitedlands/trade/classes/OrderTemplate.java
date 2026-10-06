@@ -9,6 +9,9 @@ public class OrderTemplate {
     private long timelimit;
     private boolean barter;
 
+    private String commandOnComplete;
+    private boolean commandReplacesPayout;
+
     private List<String> randomDescriptions = new ArrayList<>();
     private List<OrderTemplateItemGroup> itemGroups = new ArrayList<>();
     private List<OrderBarterItem> barterItems = new ArrayList<>();
@@ -23,6 +26,22 @@ public class OrderTemplate {
 
     public void setBarter(boolean barter) {
         this.barter = barter;
+    }
+
+    public String getCommandOnComplete() {
+        return commandOnComplete;
+    }
+
+    public void setCommandOnComplete(String commandOnComplete) {
+        this.commandOnComplete = commandOnComplete;
+    }
+
+    public boolean isCommandReplacesPayout() {
+        return commandReplacesPayout;
+    }
+
+    public void setCommandReplacesPayout(boolean commandReplacesPayout) {
+        this.commandReplacesPayout = commandReplacesPayout;
     }
 
     public void setTimelimit(long timelimit) {

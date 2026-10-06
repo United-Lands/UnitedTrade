@@ -13,7 +13,7 @@
 
     <groupId>org.unitedlands.trade</groupId>
     <artifactId>UnitedTrade</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
 
     <repositories>
         <repository>
@@ -26,6 +26,12 @@
         <dependency>
             <groupId>org.unitedlands</groupId>
             <artifactId>UnitedLib</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.unitedlands.unitedlands</groupId>
+            <artifactId>UnitedLands</artifactId>
+            <version>0.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

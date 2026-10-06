@@ -16,6 +16,9 @@ public class Order {
     private List<ItemStack> barterItems = new ArrayList<>();
     private String customer;
     private String description;
+    private String commandOnComplete;
+    private boolean commandReplacesPayout;
+
     private long timelimit;
     private boolean barter;
 
@@ -70,6 +73,22 @@ public class Order {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCommandOnComplete() {
+        return commandOnComplete;
+    }
+
+    public void setCommandOnComplete(String commandOnComplete) {
+        this.commandOnComplete = commandOnComplete;
+    }
+
+    public boolean isCommandReplacesPayout() {
+        return commandReplacesPayout;
+    }
+
+    public void setCommandReplacesPayout(boolean commandReplacesPayout) {
+        this.commandReplacesPayout = commandReplacesPayout;
     }
 
     public long getTimelimit() {

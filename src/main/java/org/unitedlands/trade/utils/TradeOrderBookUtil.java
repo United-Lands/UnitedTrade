@@ -75,6 +75,9 @@ public class TradeOrderBookUtil {
         pdc.set(getKey("tradebook.penalty"), PersistentDataType.DOUBLE, order.getPenalty());
         pdc.set(getKey("tradebook.barter"), PersistentDataType.BOOLEAN, order.isBarter());
         pdc.set(getKey("tradebook.tradeorderbook"), PersistentDataType.INTEGER, 1);
+        if (order.getCommandOnComplete() != null)
+            pdc.set(getKey("tradebook.commandoncomplete"), PersistentDataType.STRING, order.getCommandOnComplete());
+        pdc.set(getKey("tradebook.commandreplacespayout"), PersistentDataType.BOOLEAN, order.isCommandReplacesPayout());
 
         book.setItemMeta(bookMeta);
 
@@ -97,6 +100,8 @@ public class TradeOrderBookUtil {
             order.setPenalty(pdc.get(getKey("tradebook.penalty"), PersistentDataType.DOUBLE));
             order.setRequiredItems(getRequiredItems(pdc));
             order.setBarterItems(getBarterItems(pdc));
+            order.setCommandOnComplete(pdc.get(getKey("tradebook.commandoncomplete"), PersistentDataType.STRING));
+            order.setCommandReplacesPayout(pdc.get(getKey("tradebook.commandreplacespayout"), PersistentDataType.BOOLEAN));
         } catch (Exception ex) {
             Logger.logError("Could not parse data from order book: ", ex.getMessage());
             return null;

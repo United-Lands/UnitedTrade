@@ -9,6 +9,7 @@ import org.unitedlands.trade.commands.AdminCommands;
 import org.unitedlands.trade.commands.CheckOrderCommand;
 import org.unitedlands.trade.integrations.interfaces.DefaultEconomyProvider;
 import org.unitedlands.trade.integrations.interfaces.IEconomyProvider;
+import org.unitedlands.trade.integrations.interfaces.UnitedLandsEconomyProvider;
 import org.unitedlands.trade.integrations.interfaces.VaultEcononyProvider;
 import org.unitedlands.trade.listeners.BookListener;
 import org.unitedlands.trade.listeners.DropoffPointListener;
@@ -22,7 +23,7 @@ import org.unitedlands.trade.managers.OrderTracker;
 import org.unitedlands.trade.managers.ShopPointManager;
 import org.unitedlands.trade.managers.ShopTemplateManager;
 import org.unitedlands.trade.managers.TradePointManager;
-import org.unitedlands.utils.Logger;
+import org.unitedlands.utils.United;
 
 public class UnitedTrade extends JavaPlugin {
 
@@ -62,7 +63,7 @@ public class UnitedTrade extends JavaPlugin {
         registerEvents();
         registerCommands();
 
-        Logger.log("UnitedTrade initialized.", "UnitedTrade");
+        United.logger().info("UnitedTrade initialized.");
     }
 
     private void loadConfigs() {
@@ -99,18 +100,26 @@ public class UnitedTrade extends JavaPlugin {
     private void loadWrappers() {
         Plugin towny = Bukkit.getPluginManager().getPlugin("Towny");
         if (towny != null && towny.isEnabled()) {
-            Logger.log("Towny found, enabling wrapper.", "UnitedTrade");
+            United.logger().info("Towny found, enabling wrapper.");
         }
     }
 
     public void loadIntegrations() {
+
+        // Load priority: UnitedLands, Vault, default
+
+        Plugin ul = Bukkit.getPluginManager().getPlugin("UnitedLands");
         Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
-        if (vault != null && vault.isEnabled()) {
+
+        if (ul != null && ul.isEnabled()) {
+            United.logger().info("Enabling UnitedLands integrations.");
+            economyProvider = new UnitedLandsEconomyProvider();
+        } else if (vault != null && vault.isEnabled()) {
             try {
-                Logger.log("Enabling Vault integrations.", "UnitedTrade");
+                United.logger().info("Enabling Vault integrations.");
                 economyProvider = new VaultEcononyProvider(this, messageProvider);
             } catch (Exception ex) {
-                Logger.logWarning("Error enabling Vault, falling back to default economy integration.", "UnitedTrade");
+                United.logger().warning("Error enabling Vault, falling back to default economy integration.");
                 economyProvider = new DefaultEconomyProvider(this, messageProvider);
             }
         } else {
@@ -118,7 +127,7 @@ public class UnitedTrade extends JavaPlugin {
         }
         Plugin floodgate = Bukkit.getPluginManager().getPlugin("floodgate");
         if (floodgate != null && floodgate.isEnabled()) {
-            Logger.log("Enabling floodgate integrations.", "UnitedTrade");
+            United.logger().info("Enabling floodgate integrations.");
             useFloodgate = true;
         }
 

@@ -1,5 +1,6 @@
 check-frequency: 1200
 
+
 # Fallback commands if no compatible economy plugin can be found. Note that
 # shops will not be able to determine if a player has sufficient funds
 # to purchase items, they will always sell.

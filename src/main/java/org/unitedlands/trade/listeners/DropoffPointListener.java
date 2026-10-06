@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -151,6 +153,8 @@ public class DropoffPointListener implements Listener {
 
         } else {
 
+            // Remove all order items
+
             var inventory = player.getInventory();
             double payout = 0f;
 
@@ -160,7 +164,26 @@ public class DropoffPointListener implements Listener {
             }
             inventory.setItemInMainHand(new ItemStack(Material.AIR));
 
-            orderTracker.handleCompletedOrder(player, tradepointId, trackedOrder.getOrderNo(), payout, barterItems);
+            // Handle payout
+
+            if (order.getCommandOnComplete() != null) {
+                var cmd = order.getCommandOnComplete();
+                cmd = cmd.replace("PLAYER", player.getName());
+
+                Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), cmd);
+
+                if (order.isCommandReplacesPayout()) {
+                    orderTracker.handleCompletedOrder(player, tradepointId, trackedOrder.getOrderNo(), 0d, new ArrayList<>());
+                } else {
+                    // Do normal payout
+                    orderTracker.handleCompletedOrder(player, tradepointId, trackedOrder.getOrderNo(), payout, barterItems);
+                }
+            } else {
+                // Do normal payout
+                orderTracker.handleCompletedOrder(player, tradepointId, trackedOrder.getOrderNo(), payout, barterItems);
+            }
+
+            // Completion Effects
 
             Particle completeParticle = Particle.HAPPY_VILLAGER;
             try {

@@ -61,6 +61,8 @@ public class OrderTemplateManager {
 
                     orderTemplate.setTimelimit(configTemplate.getLong("timelimit") * 1000);
                     orderTemplate.setBarter(configTemplate.getBoolean("barter", false));
+                    orderTemplate.setCommandOnComplete(configTemplate.getString("command-on-complete"));
+                    orderTemplate.setCommandReplacesPayout(configTemplate.getBoolean("command-replaces-payout", false));
                     orderTemplate.setRandomDescriptions(configTemplate.getStringList("random-descriptions"));
 
                     var templateItemSection = configTemplate.getConfigurationSection("order-items");
@@ -122,6 +124,8 @@ public class OrderTemplateManager {
         var order = new Order();
 
         order.setBarter(template.isBarter());
+        order.setCommandOnComplete(template.getCommandOnComplete());
+        order.setCommandReplacesPayout(template.isCommandReplacesPayout());
 
         var priceConfig = UnitedTrade.getInstance().getPriceConfig().get();
         var globalAdjustment = priceConfig.getDouble("global-adjustment", 1d);
