@@ -10,7 +10,7 @@ import org.unitedlands.classes.BaseCommandHandler;
 import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.TradePoint;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class AdminTradePointsCreateHandler extends BaseCommandHandler<UnitedTrade> {
 
@@ -27,8 +27,7 @@ public class AdminTradePointsCreateHandler extends BaseCommandHandler<UnitedTrad
     public void handleCommand(CommandSender sender, String[] args) {
 
         if (args.length != 1) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.usage.create-tradepoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "usage.create-tradepoint");
             return;
         }
 

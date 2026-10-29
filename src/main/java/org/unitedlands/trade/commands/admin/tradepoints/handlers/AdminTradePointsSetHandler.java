@@ -12,7 +12,7 @@ import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.TradePoint;
 import org.unitedlands.utils.Logger;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class AdminTradePointsSetHandler extends BaseCommandHandler<UnitedTrade> {
 
@@ -40,16 +40,14 @@ public class AdminTradePointsSetHandler extends BaseCommandHandler<UnitedTrade> 
     public void handleCommand(CommandSender sender, String[] args) {
 
         if (args.length < 2) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.usage.tradepoint-set"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "usage.tradepoint-set");
             return;
         }
 
         Player player = (Player) sender;
         var tradePoint = plugin.getTradePointManager().getClosestTradepointInRadius(player.getLocation(), 2);
         if (tradePoint == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.no-close-tradepoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.no-close-tradepoint");
             return;
         }
 
@@ -88,11 +86,11 @@ public class AdminTradePointsSetHandler extends BaseCommandHandler<UnitedTrade> 
             field.set(tradePoint, value);
 
         } catch (NoSuchFieldException e) {
-            Logger.logError("Field " + fieldName + " does not exist.", "UnitedTrade");
+            United.logger().error("Field " + fieldName + " does not exist.");
         } catch (IllegalAccessException e) {
-            Logger.logError("Unable to access field " + fieldName + ".", "UnitedTrade");
+            United.logger().error("Unable to access field " + fieldName + ".");
         } catch (NumberFormatException e) {
-            Logger.logError("Invalid value for field " + fieldName + ".", "UnitedTrade");
+            United.logger().error("Invalid value for field " + fieldName + ".");
         }
     }
 

@@ -2,8 +2,6 @@ package org.unitedlands.trade.listeners;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -11,7 +9,6 @@ import org.bukkit.Particle;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,26 +21,16 @@ import org.unitedlands.UnitedLib;
 import org.unitedlands.factories.items.IItemFactory;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.DropoffPoint;
-import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.classes.OrderItem;
 import org.unitedlands.trade.classes.ShopPoint;
 import org.unitedlands.trade.classes.events.ShopOpenEvent;
 import org.unitedlands.trade.utils.TradeOrderBookUtil;
-import org.unitedlands.utils.Logger;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 
 public class DropoffPointListener implements Listener {
-
-    private final UnitedTrade plugin;
-    private final MessageProvider messageProvider;
-
-    public DropoffPointListener(UnitedTrade plugin, MessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
-    }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onDropoffInteract(PlayerInteractEvent event) {
@@ -55,12 +42,12 @@ public class DropoffPointListener implements Listener {
             return;
 
         var block = event.getClickedBlock();
-        var dropffPoint = plugin.getDropoffPointManager().getDropoffPoint(block);
+        var dropffPoint = UnitedTrade.instance().getDropoffPointManager().getDropoffPoint(block);
         if (dropffPoint != null) {
             handleDropoffPoint(event, block, dropffPoint);
             return;
         }
-        var shopPoint = plugin.getShopPointManager().getShopPoint(block);
+        var shopPoint = UnitedTrade.instance().getShopPointManager().getShopPoint(block);
         if (shopPoint != null) {
             handleShopPoint(event, block, shopPoint);
             return;
@@ -82,7 +69,7 @@ public class DropoffPointListener implements Listener {
             }
 
             if (inventory == null) {
-                Logger.logError("Couldn't get inventory for shop point " + shopPoint.getId());
+                United.logger().error("Couldn't get inventory for shop point " + shopPoint.getId());
                 return;
             }
 
@@ -106,8 +93,7 @@ public class DropoffPointListener implements Listener {
 
         var book = player.getInventory().getItemInMainHand();
         if (book == null || !TradeOrderBookUtil.isTradeOrderBook(book)) {
-            Messenger.sendMessage(player, messageProvider.get("messages.errors.must-hold-trade-book"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "errors.must-hold-trade-book");
             return;
         }
 
@@ -115,19 +101,17 @@ public class DropoffPointListener implements Listener {
 
         var tradepointId = order.getTradepointId();
         if (tradepointId != null && !dropffPoint.getTradepointId().equals(tradepointId)) {
-            Messenger.sendMessage(player, messageProvider.get("messages.errors.wrong-tradepoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "errors.wrong-tradepoint");
             return;
         }
 
-        var orderTracker = plugin.getOrderTracker();
+        var orderTracker = UnitedTrade.instance().getOrderTracker();
 
         var orderID = order.getId();
         var trackedOrder = orderTracker.getTrackedOrder(orderID);
 
         if (trackedOrder == null) {
-            Messenger.sendMessage(player, messageProvider.get("messages.errors.order-expired"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "errors.order-expired");
             player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
             return;
         }
@@ -148,8 +132,7 @@ public class DropoffPointListener implements Listener {
                 missing.add(itemStr);
             }
 
-            Messenger.sendMessage(player, messageProvider.get("messages.checkorder.missing"),
-                    Map.of("missing", String.join(", ", missing)), messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "checkorder.missing", String.join(", ", missing));
 
         } else {
 
@@ -188,15 +171,15 @@ public class DropoffPointListener implements Listener {
             Particle completeParticle = Particle.HAPPY_VILLAGER;
             try {
                 completeParticle = Registry.PARTICLE_TYPE.get(TypedKey.create(RegistryKey.PARTICLE_TYPE,
-                        plugin.getConfig().getString("effects.complete-particle")));
+                        UnitedTrade.instance().getConfig().getString("effects.complete-particle")));
             } catch (Exception ignore) {
             }
             Sound completeSound = Sound.ENTITY_PLAYER_LEVELUP;
             Double completeVolume = 1.0;
             try {
                 completeSound = Registry.SOUNDS.get(TypedKey.create(RegistryKey.SOUND_EVENT,
-                        plugin.getConfig().getString("effects.complete-sound")));
-                completeVolume = UnitedTrade.getInstance().getConfig().getDouble("effects.complete-volume", 1.0);
+                        UnitedTrade.instance().getConfig().getString("effects.complete-sound")));
+                completeVolume = UnitedTrade.instance().getConfig().getDouble("effects.complete-volume", 1.0);
             } catch (Exception ignore) {
             }
 
@@ -206,8 +189,12 @@ public class DropoffPointListener implements Listener {
 
             orderTracker.removeTrackedOrder(order.getId());
 
-            Messenger.sendMessage(player, messageProvider.get("messages.checkorder.complete"), null,
-                    messageProvider.get("messages.prefix"));
+            if (payout > 0) {
+                United.messenger().send(player, "checkorder.complete", UnitedTrade.instance().getEconomyProvider().format(payout));
+            }
+            else {
+                United.messenger().send(player, "checkorder.complete-barter");
+            }
 
         }
     }

@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.unitedlands.classes.BaseCommandHandler;
 import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.trade.UnitedTrade;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class AdminTradePointsRemoveTemplateHandler extends BaseCommandHandler<UnitedTrade> {
 
@@ -29,8 +29,7 @@ public class AdminTradePointsRemoveTemplateHandler extends BaseCommandHandler<Un
     public void handleCommand(CommandSender sender, String[] args) {
 
         if (args.length != 1) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.usage.removetemplate-tradepoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "usage.removetemplate-tradepoint");
             return;
         }
 
@@ -38,8 +37,7 @@ public class AdminTradePointsRemoveTemplateHandler extends BaseCommandHandler<Un
 
         var tradePoint = plugin.getTradePointManager().getClosestTradepointInRadius(player.getLocation(), 2);
         if (tradePoint == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.no-close-tradepoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.no-close-tradepoint");
             return;
         }
 

@@ -3,6 +3,9 @@ package org.unitedlands.trade.integrations.interfaces;
 import org.bukkit.entity.Player;
 
 public interface IEconomyProvider {
+
+    String format(double amount);
+    
     double getPlayerBalance(Player player);
 
     boolean takeMoneyFromPlayer(Player player, double amount);

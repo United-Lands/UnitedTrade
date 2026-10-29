@@ -1,27 +1,13 @@
 package org.unitedlands.trade.listeners;
 
-import java.util.Map;
-
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.unitedlands.trade.UnitedTrade;
-import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.classes.events.TradePointValidationEvent;
-import org.unitedlands.utils.Formatter;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 import net.kyori.adventure.text.Component;
 
 public class SelfListener implements Listener {
-
-    @SuppressWarnings("unused")
-    private final UnitedTrade plugin;
-    private final MessageProvider messageProvider;
-
-    public SelfListener(UnitedTrade plugin, MessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
-    }
 
     @EventHandler
     public void onTradePointValidation(TradePointValidationEvent event) {
@@ -35,9 +21,11 @@ public class SelfListener implements Listener {
 
             event.setValid(false);
             event.getMessages().add(
-                    Messenger.getMessage(messageProvider.get("messages.tradepoint.on-cooldown"),
-                            Map.of("cooldown", Formatter.formatDuration(cooldownMillis),
-                                    "remaining", Formatter.formatDuration(remaining))));
+                    United.miniMessage().get().deserialize(
+                        United.messenger().get("tradepoint.on-cooldown", 
+                            United.formatter().formatDuration(cooldownMillis),
+                            United.formatter().formatDuration(remaining)))
+                    );
         }
 
         if (tradePoint.getRequiredPermissions() != null) {
@@ -56,7 +44,9 @@ public class SelfListener implements Listener {
                             Component.text("<red>" + tradePoint.getRequiredPermissionsError() + "</red>"));
                 } else {
                     event.getMessages().add(
-                            Messenger.getMessage(messageProvider.get("messages.tradepoint.permission-error")));
+                        United.miniMessage().get().deserialize(
+                            United.messenger().get("tradepoint.permission-error"))
+                        );
                 }
             }
         }
@@ -77,7 +67,9 @@ public class SelfListener implements Listener {
                             Component.text("<red>" + tradePoint.getBlacklistedPermissionsError() + "</red>"));
                 } else {
                     event.getMessages().add(
-                            Messenger.getMessage(messageProvider.get("messages.tradepoint.permission-error")));
+                        United.miniMessage().get().deserialize(
+                            United.messenger().get("tradepoint.permission-error"))
+                        );
                 }
             }
         }

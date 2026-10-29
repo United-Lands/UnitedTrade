@@ -15,27 +15,21 @@ import org.unitedlands.trade.classes.OrderItem;
 import org.unitedlands.trade.classes.OrderTemplate;
 import org.unitedlands.trade.classes.OrderTemplateItemGroup;
 import org.unitedlands.trade.classes.TradePoint;
-import org.unitedlands.utils.Logger;
+import org.unitedlands.utils.United;
 
 public class OrderTemplateManager {
 
-    private final UnitedTrade plugin;
-
     private Map<String, OrderTemplate> orderTemplates = new HashMap<>();
-
-    public OrderTemplateManager(UnitedTrade plugin) {
-        this.plugin = plugin;
-    }
 
     public void loadTemplates() {
 
         orderTemplates = new HashMap<>();
 
         String directoryPath = File.separator + "order_templates";
-        File directory = new File(plugin.getDataFolder(), directoryPath);
+        File directory = new File(UnitedTrade.instance().getDataFolder(), directoryPath);
         if (!directory.exists()) {
             if (!directory.mkdir()) {
-                Logger.logWarning("Error creating order_templates directory.", "UnitedTrade");
+                United.logger().warning("Error creating order_templates directory.");
             }
         }
 
@@ -47,7 +41,7 @@ public class OrderTemplateManager {
                 try {
                     template = YamlConfiguration.loadConfiguration(file);
                 } catch (Exception ex) {
-                    Logger.logError("Couldn't load file: " + file.getName(), "UnitedTrade");
+                    United.logger().error("Couldn't load file: " + file.getName());
                     continue;
                 }
 
@@ -82,7 +76,7 @@ public class OrderTemplateManager {
                             item.setMinUnits(Integer.parseInt(split[0]));
                             item.setMaxUnits(Integer.parseInt(split[1]));
                         } else {
-                            Logger.logError("Invalid unit size in " + configTemplateKey + "." + templateItemKey,
+                            United.logger().error("Invalid unit size in " + configTemplateKey + "." + templateItemKey,
                                     "UnitedTrade");
                         }
 
@@ -106,7 +100,7 @@ public class OrderTemplateManager {
             }
         }
 
-        Logger.log("Loaded " + orderTemplates.size() + " order templates from files.", "UnitedTrade");
+        United.logger().info("Loaded " + orderTemplates.size() + " order templates from files.");
     }
 
     public Set<String> getOrderTemplateKeys() {
@@ -117,7 +111,7 @@ public class OrderTemplateManager {
 
         var template = orderTemplates.get(templateName);
         if (template == null) {
-            Logger.logWarning("Unknown template name: " + templateName, "UnitedTrade");
+            United.logger().warning("Unknown template name: " + templateName);
             return null;
         }
 
@@ -127,7 +121,7 @@ public class OrderTemplateManager {
         order.setCommandOnComplete(template.getCommandOnComplete());
         order.setCommandReplacesPayout(template.isCommandReplacesPayout());
 
-        var priceConfig = UnitedTrade.getInstance().getPriceConfig().get();
+        var priceConfig = UnitedTrade.instance().getPriceConfig().get();
         var globalAdjustment = priceConfig.getDouble("global-adjustment", 1d);
 
         for (var item : template.getItemGroups()) {

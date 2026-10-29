@@ -7,6 +7,12 @@ import org.unitedlands.utils.United;
 
 public class UnitedLandsEconomyProvider implements IEconomyProvider {
 
+    
+    @Override
+    public String format(double amount) {
+        return UnitedLandsEconomyManager.instance().format(amount);
+    }
+
     @Override
     public double getPlayerBalance(Player player) {
         return UnitedLandsEconomyManager.instance().getBalance(player.getUniqueId()).doubleValue();

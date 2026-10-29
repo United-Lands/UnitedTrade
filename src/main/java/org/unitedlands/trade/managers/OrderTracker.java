@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.unitedlands.trade.UnitedTrade;
-import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.classes.OrderTrackerItem;
 import org.unitedlands.trade.classes.TradePoint;
 import org.unitedlands.trade.classes.events.TradeOrderCompletedEvent;
@@ -24,91 +22,15 @@ import org.unitedlands.trade.classes.events.TradeOrderFailedEvent;
 import org.unitedlands.trade.classes.events.TradePointValidationEvent;
 import org.unitedlands.trade.utils.JsonUtils;
 import org.unitedlands.trade.utils.TradeOrderBookUtil;
-import org.unitedlands.utils.Formatter;
-import org.unitedlands.utils.Logger;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 import com.google.gson.reflect.TypeToken;
 
 public class OrderTracker {
 
-    private final UnitedTrade plugin;
-    private final MessageProvider messageProvider;
-
     private Set<OrderTrackerItem> trackedOrders = new HashSet<>();
 
     private BukkitTask trackerTask;
-
-    public OrderTracker(UnitedTrade plugin, MessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
-    }
-
-    // public boolean hasPickupRequirements(Player player, TradePoint tradePoint) {
-
-    // if (tradePoint.isPlayerOnPickupCooldown(player.getUniqueId())) {
-    // var cooldownMillis = tradePoint.getPickupCooldown() * 1000;
-    // var remaining =
-    // tradePoint.getPlayerPickupCooldownRemaining(player.getUniqueId());
-    // Messenger.sendMessage(player,
-    // messageProvider.get("messages.tradepoint.on-cooldown"),
-    // Map.of("cooldown", Formatter.formatDuration(cooldownMillis),
-    // "remaining", Formatter.formatDuration(remaining)),
-    // messageProvider.get("messages.prefix"));
-    // return false;
-    // }
-
-    // if (tradePoint.getRequiredPermissions() != null) {
-    // var permissionsArray = tradePoint.getRequiredPermissions().split(",");
-    // boolean playerHasAllRequiredPermissions = true;
-    // for (var permString : permissionsArray) {
-    // var perm = permString.trim();
-    // if (!player.hasPermission(perm))
-    // playerHasAllRequiredPermissions = false;
-    // }
-
-    // if (!playerHasAllRequiredPermissions) {
-    // if (tradePoint.getRequiredPermissionsError() != null) {
-    // Messenger.sendMessage(player, "<red>" +
-    // tradePoint.getRequiredPermissionsError() + "</red>", null,
-    // messageProvider.get("messages.prefix"));
-    // return false;
-    // } else {
-    // Messenger.sendMessage(player,
-    // messageProvider.get("messages.tradepoint.permission-error"), null,
-    // messageProvider.get("messages.prefix"));
-    // return false;
-    // }
-    // }
-    // }
-
-    // if (tradePoint.getBlacklistedPermissions() != null) {
-    // var permissionsArray = tradePoint.getBlacklistedPermissions().split(",");
-    // boolean playerHasBlacklistedPermission = false;
-    // for (var permString : permissionsArray) {
-    // var perm = permString.trim();
-    // if (player.hasPermission(perm))
-    // playerHasBlacklistedPermission = true;
-    // }
-
-    // if (playerHasBlacklistedPermission) {
-    // if (tradePoint.getBlacklistedPermissionsError() != null) {
-    // Messenger.sendMessage(player, "<red>" +
-    // tradePoint.getBlacklistedPermissionsError() + "</red>",
-    // null,
-    // messageProvider.get("messages.prefix"));
-    // return false;
-    // } else {
-    // Messenger.sendMessage(player,
-    // messageProvider.get("messages.tradepoint.permission-error"), null,
-    // messageProvider.get("messages.prefix"));
-    // return false;
-    // }
-    // }
-    // }
-
-    // return true;
-    // }
 
     public boolean acceptTradeOrder(Player player, TradePoint tradePoint, ItemStack book) {
 
@@ -117,7 +39,7 @@ public class OrderTracker {
 
         if (!validationEvent.isValid()) {
             for (var message : validationEvent.getMessages()) {
-                Messenger.send(player, message);
+                United.messenger().send(player, message);
             }
             return false;
         }
@@ -134,8 +56,7 @@ public class OrderTracker {
                 System.currentTimeMillis() + timelimit);
         addTrackedOrder(orderTrackerItem);
 
-        Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.order-started"),
-                Map.of("remaining", Formatter.formatDuration(timelimit)), messageProvider.get("messages.prefix"));
+        United.messenger().send(player, "tradepoint.order-started", United.formatter().formatDuration(timelimit));
         tradePoint.addPlayerPickupCooldown(player.getUniqueId());
 
         return true;
@@ -151,18 +72,18 @@ public class OrderTracker {
     }
 
     public void startTracking() {
-        Logger.log("Starting order tracking...", "UnitedTrade");
-        var frequency = plugin.getConfig().getLong("check-frequency", 1200L);
+        United.logger().info("Starting order tracking...");
+        var frequency = UnitedTrade.instance().getConfig().getLong("check-frequency", 1200L);
         trackerTask = new BukkitRunnable() {
             @Override
             public void run() {
                 checkTrackedOrders();
             }
-        }.runTaskTimer(plugin, frequency, frequency);
+        }.runTaskTimer(UnitedTrade.instance(), frequency, frequency);
     }
 
     public void stopTracking() {
-        Logger.log("Stopping order tracking...");
+        United.logger().info("Stopping order tracking...");
         if (trackerTask != null)
             trackerTask.cancel();
     }
@@ -181,8 +102,7 @@ public class OrderTracker {
                 continue;
             handleExpiredOrder(player, item.getTradepointId(), item.getOrderNo(), item.getPenalty());
             if (player.isOnline()) {
-                Messenger.sendMessage(player, messageProvider.get("messages.tradepoint.order-failed"),
-                        Map.of("order-no", item.getOrderNo()), messageProvider.get("messages.prefix"));
+                United.messenger().send(player, "tradepoint.order-failed", item.getOrderNo());
             }
         }
 
@@ -191,7 +111,7 @@ public class OrderTracker {
             saveTrackedOrders();
         }
 
-        plugin.getTradePointManager().restockTradePoints();
+        UnitedTrade.instance().getTradePointManager().restockTradePoints();
     }
 
     public boolean removeTrackedOrder(UUID orderId) {
@@ -207,16 +127,16 @@ public class OrderTracker {
 
     public void handleExpiredOrder(Player player, UUID tradepointId, String orderNo, double penalty) {
         if (penalty != 0) {
-            plugin.getEconomyProvider().takeMoneyFromPlayer(player, penalty, "Contract penalty");
+            UnitedTrade.instance().getEconomyProvider().takeMoneyFromPlayer(player, penalty, "Contract penalty");
         }
-        TradePoint tradepoint = plugin.getTradePointManager().getTradePoint(tradepointId);
+        TradePoint tradepoint = UnitedTrade.instance().getTradePointManager().getTradePoint(tradepointId);
         (new TradeOrderFailedEvent(player, tradepoint, penalty)).callEvent();
     }
 
     public void handleCompletedOrder(Player player, UUID tradepointId, String orderNo, double payment,
             List<ItemStack> barterItems) {
 
-        TradePoint tradepoint = plugin.getTradePointManager().getTradePoint(tradepointId);
+        TradePoint tradepoint = UnitedTrade.instance().getTradePointManager().getTradePoint(tradepointId);
         var event = new TradeOrderCompletedEvent(player, tradepoint, payment);
         event.callEvent();
 
@@ -227,22 +147,18 @@ public class OrderTracker {
         if (bonus != 0) {
 
             if (bonus > 0) {
-                Messenger.sendMessage(player, messageProvider.get("messages.checkorder.bonus"),
-                        Map.of("bonus", String.format("%,.2f", bonus) + messageProvider.get("messages.currency"),
-                                "reason", event.getBonusReason()),
-                        messageProvider.get("messages.prefix"));
+                United.messenger().send(player, "checkorder.bonus", 
+                    String.format("%,.2f", bonus) + United.messenger().get("currency"), event.getBonusReason());
             } else {
-                Messenger.sendMessage(player, messageProvider.get("messages.checkorder.malus"),
-                        Map.of("bonus", String.format("%,.2f", bonus) + messageProvider.get("messages.currency"),
-                                "reason", event.getBonusReason()),
-                        messageProvider.get("messages.prefix"));
+                United.messenger().send(player, "checkorder.malus", 
+                    String.format("%,.2f", bonus) + United.messenger().get("currency"), event.getBonusReason());
             }
         }
 
         var totalPayment = event.getPayment() + event.getBonus();
 
         if (payment != 0) {
-            plugin.getEconomyProvider().giveMoneyToPlayer(player, totalPayment, "Order payment");
+            UnitedTrade.instance().getEconomyProvider().giveMoneyToPlayer(player, totalPayment, "Order payment");
         }
 
         if (!barterItems.isEmpty()) {
@@ -260,7 +176,7 @@ public class OrderTracker {
         var filename = "tracked_orders";
         var filePath = File.separator + "orders" + File.separator + filename + ".json";
 
-        File trackedOrdersFile = new File(plugin.getDataFolder(), filePath);
+        File trackedOrdersFile = new File(UnitedTrade.instance().getDataFolder(), filePath);
         Set<OrderTrackerItem> orders = loadTrackedOrderFile(trackedOrdersFile);
         if (orders != null) {
             trackedOrders = orders;
@@ -275,7 +191,7 @@ public class OrderTracker {
             }.getType();
             return JsonUtils.loadObjectFromFile(file, type);
         } catch (IOException ex) {
-            Logger.logError(ex.getMessage(), "UnitedTrade");
+            United.logger().error(ex.getMessage());
             return null;
         }
     }
@@ -285,13 +201,13 @@ public class OrderTracker {
         var filename = "tracked_orders";
         var filePath = File.separator + "orders" + File.separator + filename + ".json";
 
-        File trackedOrdersFile = new File(plugin.getDataFolder(), filePath);
+        File trackedOrdersFile = new File(UnitedTrade.instance().getDataFolder(), filePath);
         if (!trackedOrdersFile.exists()) {
             trackedOrdersFile.getParentFile().mkdirs();
             try {
                 trackedOrdersFile.createNewFile();
             } catch (IOException ex) {
-                Logger.logError(ex.getMessage(), "UnitedTrade");
+                United.logger().error(ex.getMessage());
             }
         }
 
@@ -299,7 +215,7 @@ public class OrderTracker {
             JsonUtils.saveObjectToFile(trackedOrders, trackedOrdersFile);
             return true;
         } catch (IOException ex) {
-            Logger.logError(ex.getMessage(), "UnitedTrade");
+            United.logger().error(ex.getMessage());
             return false;
         }
 

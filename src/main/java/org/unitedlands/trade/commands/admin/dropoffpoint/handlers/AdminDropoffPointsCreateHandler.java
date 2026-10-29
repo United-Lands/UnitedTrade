@@ -11,7 +11,7 @@ import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.DropoffPoint;
 import org.unitedlands.trade.classes.TradePoint;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class AdminDropoffPointsCreateHandler extends BaseCommandHandler<UnitedTrade> {
 
@@ -30,8 +30,7 @@ public class AdminDropoffPointsCreateHandler extends BaseCommandHandler<UnitedTr
     public void handleCommand(CommandSender sender, String[] args) {
 
         if (args.length != 1) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.usage.create-dropoffpoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "usage.create-dropoffpoint");
             return;
         }
 
@@ -39,8 +38,7 @@ public class AdminDropoffPointsCreateHandler extends BaseCommandHandler<UnitedTr
         TradePoint tradePoint = plugin.getTradePointManager().getTradePoint(tradepointName);
         if (tradePoint == null)
         {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.unknown-tradepoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.unknown-tradepoint");
         }
 
         var player = (Player) sender;

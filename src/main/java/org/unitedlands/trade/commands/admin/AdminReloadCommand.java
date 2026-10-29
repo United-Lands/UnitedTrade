@@ -8,7 +8,7 @@ import org.unitedlands.classes.BaseCommandHandler;
 import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.utils.Logger;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class AdminReloadCommand extends BaseCommandHandler<UnitedTrade>{
 
@@ -24,10 +24,10 @@ public class AdminReloadCommand extends BaseCommandHandler<UnitedTrade>{
     @Override
     public void handleCommand(CommandSender sender, String[] args) {
 
-        Logger.log("Stopping schedulers...", "UnitedTrade");
+        United.logger().info("Stopping schedulers...");
         plugin.getOrderTracker().stopTracking();
 
-        Logger.log("Reloading configs...", "UnitedTrade");
+        United.logger().info("Reloading configs...");
 
         plugin.reloadConfig();
         plugin.getPriceConfig().reload();
@@ -41,12 +41,12 @@ public class AdminReloadCommand extends BaseCommandHandler<UnitedTrade>{
         plugin.getShopPointManager().loadShopPoints();
         plugin.getOrderTracker().loadTrackedOrders();
 
-        Logger.log("Starting schedulers...", "UnitedTrade");
+        United.logger().info("Starting schedulers...");
         plugin.getOrderTracker().startTracking();
 
-        Logger.log("Done.", "UnitedTrade");
+        United.logger().info("Done.");
 
-        Messenger.sendMessage(sender, messageProvider.get("messages.reload"), null, messageProvider.get("messages.prefix"));
+        United.messenger().send(sender, "reload");
 
     }
 

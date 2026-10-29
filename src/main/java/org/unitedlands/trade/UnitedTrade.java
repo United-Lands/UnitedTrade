@@ -11,6 +11,7 @@ import org.unitedlands.trade.integrations.interfaces.DefaultEconomyProvider;
 import org.unitedlands.trade.integrations.interfaces.IEconomyProvider;
 import org.unitedlands.trade.integrations.interfaces.UnitedLandsEconomyProvider;
 import org.unitedlands.trade.integrations.interfaces.VaultEcononyProvider;
+import org.unitedlands.trade.integrations.quickshop.QuickShopListener;
 import org.unitedlands.trade.listeners.BookListener;
 import org.unitedlands.trade.listeners.DropoffPointListener;
 import org.unitedlands.trade.listeners.InventoryListener;
@@ -29,7 +30,7 @@ public class UnitedTrade extends JavaPlugin {
 
     private static UnitedTrade instance;
 
-    public static UnitedTrade getInstance() {
+    public static UnitedTrade instance() {
         return instance;
     }
 
@@ -71,11 +72,11 @@ public class UnitedTrade extends JavaPlugin {
     }
 
     private void registerEvents() {
-        getServer().getPluginManager().registerEvents(new DropoffPointListener(this, messageProvider), this);
-        getServer().getPluginManager().registerEvents(new LecternListener(this, messageProvider), this);
+        getServer().getPluginManager().registerEvents(new DropoffPointListener(), this);
+        getServer().getPluginManager().registerEvents(new LecternListener(), this);
         getServer().getPluginManager().registerEvents(new ServerListener(this), this);
-        getServer().getPluginManager().registerEvents(new SelfListener(this, messageProvider), this);
-        getServer().getPluginManager().registerEvents(new InventoryListener(this, messageProvider), this);
+        getServer().getPluginManager().registerEvents(new SelfListener(), this);
+        getServer().getPluginManager().registerEvents(new InventoryListener(), this);
         getServer().getPluginManager().registerEvents(new BookListener(this), this);
     }
 
@@ -89,12 +90,12 @@ public class UnitedTrade extends JavaPlugin {
     }
 
     private void loadManagers() {
-        tradePointManager = new TradePointManager(this, messageProvider);
-        dropoffPointManager = new DropoffPointManager(this, messageProvider);
-        shopPointManager = new ShopPointManager(this, messageProvider);
-        orderTemplateManager = new OrderTemplateManager(this);
-        shopTemplateManager = new ShopTemplateManager(this);
-        orderTracker = new OrderTracker(this, messageProvider);
+        tradePointManager = new TradePointManager();
+        dropoffPointManager = new DropoffPointManager();
+        shopPointManager = new ShopPointManager();
+        orderTemplateManager = new OrderTemplateManager();
+        shopTemplateManager = new ShopTemplateManager();
+        orderTracker = new OrderTracker();
     }
 
     private void loadWrappers() {
@@ -117,20 +118,24 @@ public class UnitedTrade extends JavaPlugin {
         } else if (vault != null && vault.isEnabled()) {
             try {
                 United.logger().info("Enabling Vault integrations.");
-                economyProvider = new VaultEcononyProvider(this, messageProvider);
+                economyProvider = new VaultEcononyProvider();
             } catch (Exception ex) {
                 United.logger().warning("Error enabling Vault, falling back to default economy integration.");
-                economyProvider = new DefaultEconomyProvider(this, messageProvider);
+                economyProvider = new DefaultEconomyProvider();
             }
         } else {
-            economyProvider = new DefaultEconomyProvider(this, messageProvider);
+            economyProvider = new DefaultEconomyProvider();
         }
         Plugin floodgate = Bukkit.getPluginManager().getPlugin("floodgate");
         if (floodgate != null && floodgate.isEnabled()) {
             United.logger().info("Enabling floodgate integrations.");
             useFloodgate = true;
         }
-
+        Plugin quickshop = Bukkit.getPluginManager().getPlugin("QuickShop-Hikari");
+        if (quickshop != null && quickshop.isEnabled()) {
+            United.logger().info("Enabling QuickShop-Hikarp integrations.");
+            getServer().getPluginManager().registerEvents(new QuickShopListener(), this);
+        }
     }
 
     public MessageProvider getMessageProvider() {

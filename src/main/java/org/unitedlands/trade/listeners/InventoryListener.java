@@ -1,7 +1,5 @@
 package org.unitedlands.trade.listeners;
 
-import java.util.Map;
-
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -13,23 +11,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.unitedlands.UnitedLib;
-import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.ShopPoint;
-import org.unitedlands.utils.Formatter;
-import org.unitedlands.utils.Logger;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class InventoryListener implements Listener {
 
-    @SuppressWarnings("unused")
-    private final UnitedTrade plugin;
-    private final IMessageProvider messageProvider;
-
-    public InventoryListener(UnitedTrade plugin, IMessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
-    }
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
@@ -47,18 +34,17 @@ public class InventoryListener implements Listener {
                     
                     var meta = item.getItemMeta();
                     PersistentDataContainer pdc = meta.getPersistentDataContainer();
-                    var price = pdc.get(new NamespacedKey(UnitedTrade.getInstance(), "shopitem.price"),
+                    var price = pdc.get(new NamespacedKey(UnitedTrade.instance(), "shopitem.price"),
                             PersistentDataType.DOUBLE);
 
                     Player player = (Player) event.getWhoClicked();
 
                     if (price > 0) {
-                        var economy = plugin.getEconomyProvider();
+                        var economy = UnitedTrade.instance().getEconomyProvider();
                         if (economy.getPlayerBalance(player) >= price) {
                             economy.takeMoneyFromPlayer(player, price, "Shop purchase");
                         } else {
-                            Messenger.sendMessage(player, messageProvider.get("messages.shop.insufficient-funds"), null,
-                                    messageProvider.get("messages.prefix"));
+                            United.messenger().send(player, "shop.insufficient-funds");
                             return;
                         }
 
@@ -66,7 +52,7 @@ public class InventoryListener implements Listener {
                         var itemId = itemFactory.getFilterName(item);
                         var newItem = itemFactory.getItemStack(itemId, item.getAmount());
                         if (newItem == null) {
-                            Logger.logError("Could not create instance of " + itemId, "UnitedTrade");
+                            United.logger().error("Could not create instance of " + itemId);
                             return;
                         }
 
@@ -89,9 +75,8 @@ public class InventoryListener implements Listener {
         if (event.getInventory().getHolder() instanceof ShopPoint shopPoint) {
             var player = (Player) event.getPlayer();
 
-            String remainingTime = Formatter.formatDuration(shopPoint.getTimeToRefresh(player));
-            Messenger.sendMessage(player, messageProvider.get("messages.shop.remaining-time"),
-                    Map.of("remaining", remainingTime), messageProvider.get("messages.prefix"));
+            String remainingTime = United.formatter().formatDuration(shopPoint.getTimeToRefresh(player));
+            United.messenger().send(player, "shop.remaining-time", remainingTime);
         }
 
     }

@@ -8,7 +8,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.unitedlands.trade.UnitedTrade;
-import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.classes.TradePoint;
 import org.unitedlands.trade.classes.events.TradePointValidationEvent;
 import org.unitedlands.trade.integrations.floodgate.FloodgateAPIIntegration;
@@ -25,15 +24,6 @@ import net.kyori.adventure.text.event.ClickCallback;
 
 public class LecternListener implements Listener {
 
-    private final UnitedTrade plugin;
-    @SuppressWarnings("unused")
-    private final MessageProvider messageProvider;
-
-    public LecternListener(UnitedTrade plugin, MessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
-    }
-
     @EventHandler
     public void onLecternInteract(PlayerInteractEvent event) {
 
@@ -44,7 +34,7 @@ public class LecternListener implements Listener {
             return;
 
         var block = event.getClickedBlock();
-        var tradePoint = plugin.getTradePointManager().getTradePoint(block);
+        var tradePoint = UnitedTrade.instance().getTradePointManager().getTradePoint(block);
         if (tradePoint == null)
             return;
 
@@ -55,7 +45,7 @@ public class LecternListener implements Listener {
 
         var player = event.getPlayer();
 
-        // if (!plugin.getOrderTracker().hasPickupRequirements(player, tradePoint))
+        // if (!UnitedTrade.instance().getOrderTracker().hasPickupRequirements(player, tradePoint))
         //     return;
 
         var book = tradePoint.getBook();
@@ -64,10 +54,10 @@ public class LecternListener implements Listener {
         }
 
         // Show different UIs to Java and Bedrock players if floodgate is present
-        if (!plugin.useFloodgate()) {
+        if (!UnitedTrade.instance().useFloodgate()) {
             handleJavaDialogue(player, tradePoint, book, validationEvent);
         } else {
-            var floodgate = new FloodgateAPIIntegration(plugin);
+            var floodgate = new FloodgateAPIIntegration(UnitedTrade.instance());
             if (!floodgate.isBedrockPlayer(player))
                 handleJavaDialogue(player, tradePoint, book, validationEvent);
             else {
@@ -90,7 +80,7 @@ public class LecternListener implements Listener {
                                 .action(
                                         DialogAction.customClick(
                                                 (view, audience) -> {
-                                                    if (plugin.getOrderTracker().acceptTradeOrder(player, tradePoint,
+                                                    if (UnitedTrade.instance().getOrderTracker().acceptTradeOrder(player, tradePoint,
                                                             book)) {
                                                         tradePoint.removeBook();
                                                         var leftover = player.getInventory().addItem(book);
@@ -117,7 +107,7 @@ public class LecternListener implements Listener {
     @EventHandler
     public void onBookPlace(PlayerInsertLecternBookEvent event) {
         var block = event.getLectern().getBlock();
-        var tradePoint = plugin.getTradePointManager().getTradePoint(block);
+        var tradePoint = UnitedTrade.instance().getTradePointManager().getTradePoint(block);
         if (tradePoint == null)
             return;
 

@@ -10,7 +10,7 @@ import org.unitedlands.classes.BaseCommandHandler;
 import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.ShopPoint;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class AdminShopPointsRemoveHandler extends BaseCommandHandler<UnitedTrade> {
 
@@ -29,8 +29,7 @@ public class AdminShopPointsRemoveHandler extends BaseCommandHandler<UnitedTrade
     public void handleCommand(CommandSender sender, String[] args) {
 
         if (args.length != 0) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.usage.remove-dropoffpoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "usage.remove-dropoffpoint");
             return;
         }
 
@@ -39,8 +38,7 @@ public class AdminShopPointsRemoveHandler extends BaseCommandHandler<UnitedTrade
         ShopPoint shopPoint = plugin.getShopPointManager().getClosestShopPointInRadius(player.getLocation(),
                 2);
         if (shopPoint == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.no-close-shoppoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.no-close-shoppoint");
             return;
         }
 

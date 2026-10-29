@@ -11,32 +11,23 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.DropoffPoint;
-import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.utils.JsonUtils;
-import org.unitedlands.utils.Logger;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class DropoffPointManager {
 
-    private final UnitedTrade plugin;
-    private final MessageProvider messageProvider;
 
     private Set<DropoffPoint> dropoffPoints = new HashSet<>();
-
-    public DropoffPointManager(UnitedTrade plugin, MessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
-    }
 
     public void loadDropoffPoints() {
 
         dropoffPoints = new HashSet<>();
 
         String directoryPath = File.separator + "dropoff_points";
-        File directory = new File(plugin.getDataFolder(), directoryPath);
+        File directory = new File(UnitedTrade.instance().getDataFolder(), directoryPath);
         if (!directory.exists()) {
             if (!directory.mkdir()) {
-                Logger.logWarning("Error creating dropoff_points directory.", "UnitedTrade");
+                United.logger().warning("Error creating dropoff_points directory.");
             }
         }
 
@@ -51,7 +42,7 @@ public class DropoffPointManager {
             }
         }
 
-        Logger.log("Loaded " + dropoffPoints.size() + " trade points.", "UnitedTrade");
+        United.logger().info("Loaded " + dropoffPoints.size() + " trade points.");
 
     }
 
@@ -59,18 +50,16 @@ public class DropoffPointManager {
         try {
             return JsonUtils.loadObjectFromFile(file, DropoffPoint.class);
         } catch (IOException ex) {
-            Logger.logError(ex.getMessage(), "UnitedTrade");
+            United.logger().error(ex.getMessage());
             return null;
         }
     }
 
     public void saveDropoffPoint(DropoffPoint dropffPoint, CommandSender sender) {
         if (!saveDropoffPoint(dropffPoint)) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.save-error"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "save-error");
         } else {
-            Messenger.sendMessage(sender, messageProvider.get("messages.save-success"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "save-success");
         }
     }
 
@@ -78,13 +67,13 @@ public class DropoffPointManager {
         var uuid = dropoffPoint.getId();
         var filePath = File.separator + "dropoff_points" + File.separator + uuid + ".json";
 
-        File tradePointFile = new File(plugin.getDataFolder(), filePath);
+        File tradePointFile = new File(UnitedTrade.instance().getDataFolder(), filePath);
         if (!tradePointFile.exists()) {
             tradePointFile.getParentFile().mkdirs();
             try {
                 tradePointFile.createNewFile();
             } catch (IOException ex) {
-                Logger.logError(ex.getMessage(), "UnitedTrade");
+                United.logger().error(ex.getMessage());
             }
         }
 
@@ -92,7 +81,7 @@ public class DropoffPointManager {
             JsonUtils.saveObjectToFile(dropoffPoint, tradePointFile);
             return true;
         } catch (IOException ex) {
-            Logger.logError(ex.getMessage(), "UnitedTrade");
+            United.logger().error(ex.getMessage());
             return false;
         }
     }
@@ -101,16 +90,14 @@ public class DropoffPointManager {
         var uuid = dropoffPoint.getId();
         var filePath = File.separator + "dropoff_points" + File.separator + uuid + ".json";
 
-        File dropoffPointFile = new File(plugin.getDataFolder(), filePath);
+        File dropoffPointFile = new File(UnitedTrade.instance().getDataFolder(), filePath);
 
         try {
             dropoffPointFile.delete();
-            Messenger.sendMessage(sender, messageProvider.get("messages.file-delete-success"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "file-delete-success");
         } catch (Exception ex) {
-            Logger.logError(ex.getMessage(), "UnitedTrade");
-            Messenger.sendMessage(sender, messageProvider.get("messages.file-delete-error"), null,
-                    messageProvider.get("messages.prefix"));
+            United.logger().error(ex.getMessage());
+            United.messenger().send(sender, "file-delete-error");
         }
     }
 

@@ -10,7 +10,7 @@ import org.unitedlands.classes.BaseCommandHandler;
 import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.DropoffPoint;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class AdminDropoffPointsRemoveHandler extends BaseCommandHandler<UnitedTrade> {
 
@@ -29,8 +29,7 @@ public class AdminDropoffPointsRemoveHandler extends BaseCommandHandler<UnitedTr
     public void handleCommand(CommandSender sender, String[] args) {
 
         if (args.length != 0) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.usage.remove-dropoffpoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "usage.remove-dropoffpoint");
             return;
         }
 
@@ -39,8 +38,7 @@ public class AdminDropoffPointsRemoveHandler extends BaseCommandHandler<UnitedTr
         DropoffPoint dropoffPoint = plugin.getDropoffPointManager().getClosestDropoffPointInRadius(player.getLocation(),
                 2);
         if (dropoffPoint == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.no-close-dropoffpoint"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.no-close-dropoffpoint");
             return;
         }
 

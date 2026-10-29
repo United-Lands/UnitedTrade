@@ -1,28 +1,24 @@
 package org.unitedlands.trade.integrations.interfaces;
 
-import java.util.Map;
-
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.trade.UnitedTrade;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 import net.milkbowl.vault.economy.Economy;
 
 public class VaultEcononyProvider implements IEconomyProvider {
 
-    @SuppressWarnings("unused")
-    private final UnitedTrade plugin;
-    private final IMessageProvider messageProvider;
-
     private final Economy economy;
 
-    public VaultEcononyProvider(UnitedTrade plugin, IMessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
-        RegisteredServiceProvider<Economy> rsp = plugin.getServer().getServicesManager().getRegistration(Economy.class);
+    public VaultEcononyProvider() {
+        RegisteredServiceProvider<Economy> rsp = UnitedTrade.instance().getServer().getServicesManager().getRegistration(Economy.class);
         economy = rsp.getProvider();
+    }
+
+    @Override
+    public String format(double amount) {
+        return economy.format(amount);
     }
 
     @Override
@@ -39,8 +35,7 @@ public class VaultEcononyProvider implements IEconomyProvider {
     public boolean takeMoneyFromPlayer(Player player, double amount, String reason) {
         var response = economy.withdrawPlayer(player, reason, amount);
         if (response.transactionSuccess()) {
-            Messenger.sendMessage(player, messageProvider.get("messages.paid-money"),
-                    Map.of("amount", String.format("%,.2f", amount)), messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "paid-money", String.format("%,.2f", amount));
         }
         return response.transactionSuccess();
     }
@@ -54,8 +49,7 @@ public class VaultEcononyProvider implements IEconomyProvider {
     public boolean giveMoneyToPlayer(Player player, double amount, String reason) {
         var response = economy.depositPlayer(player, reason, amount);
         if (response.transactionSuccess()) {
-            Messenger.sendMessage(player, messageProvider.get("messages.received-money"),
-                    Map.of("amount", String.format("%,.2f", amount)), messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "received-money", String.format("%,.2f", amount));
         }
         return response.transactionSuccess();
     }

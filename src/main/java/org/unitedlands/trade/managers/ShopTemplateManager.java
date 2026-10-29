@@ -9,27 +9,21 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.ShopItem;
 import org.unitedlands.trade.classes.ShopTemplate;
-import org.unitedlands.utils.Logger;
+import org.unitedlands.utils.United;
 
 public class ShopTemplateManager {
 
-    private final UnitedTrade plugin;
-
     private Map<String, ShopTemplate> shopTemplates = new HashMap<>();
-
-    public ShopTemplateManager(UnitedTrade plugin) {
-        this.plugin = plugin;
-    }
 
     public void loadTemplates() {
 
         shopTemplates = new HashMap<>();
 
         String directoryPath = File.separator + "shop_templates";
-        File directory = new File(plugin.getDataFolder(), directoryPath);
+        File directory = new File(UnitedTrade.instance().getDataFolder(), directoryPath);
         if (!directory.exists()) {
             if (!directory.mkdir()) {
-                Logger.logWarning("Error creating shop_templates directory.", "UnitedTrade");
+                United.logger().warning("Error creating shop_templates directory.");
             }
         }
 
@@ -41,7 +35,7 @@ public class ShopTemplateManager {
                 try {
                     template = YamlConfiguration.loadConfiguration(file);
                 } catch (Exception ex) {
-                    Logger.logError("Couldn't load file: " + file.getName(), "UnitedTrade");
+                    United.logger().error("Couldn't load file: " + file.getName());
                     continue;
                 }
 
@@ -75,7 +69,7 @@ public class ShopTemplateManager {
 
         }
 
-        Logger.log("Loaded " + shopTemplates.size() + " shop templates from files.", "UnitedTrade");
+        United.logger().info("Loaded " + shopTemplates.size() + " shop templates from files.");
     }
 
     public ShopTemplate getShopTemplate(String key) {

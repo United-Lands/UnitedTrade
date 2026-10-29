@@ -1,22 +1,22 @@
 package org.unitedlands.trade.integrations.interfaces;
 
-import java.util.Map;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.trade.UnitedTrade;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class DefaultEconomyProvider implements IEconomyProvider {
 
-    private final UnitedTrade plugin;
-    private final IMessageProvider messageProvider;
+    public DefaultEconomyProvider() {
 
-    public DefaultEconomyProvider(UnitedTrade plugin, IMessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
     }
+
+    
+    @Override
+    public String format(double amount) {
+        return String.format("%.2f", amount);
+    }
+
 
     @Override
     public double getPlayerBalance(Player player) {
@@ -31,13 +31,12 @@ public class DefaultEconomyProvider implements IEconomyProvider {
     @Override
     public boolean takeMoneyFromPlayer(Player player, double amount, String reason) {
         if (amount > 0) {
-            var cmd = plugin.getConfig().getString("take-command");
+            var cmd = UnitedTrade.instance().getConfig().getString("take-command");
             cmd = cmd.replace("{user}", player.getName());
             cmd = cmd.replace("{amount}", amount + "");
             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), cmd);
 
-            Messenger.sendMessage(player, messageProvider.get("messages.paid-money"),
-                    Map.of("amount", String.format("%,.2f", amount)), messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "paid-money", String.format("%,.2f", amount));
         }
         return true;
     }
@@ -50,13 +49,12 @@ public class DefaultEconomyProvider implements IEconomyProvider {
     @Override
     public boolean giveMoneyToPlayer(Player player, double amount, String reason) {
         if (amount > 0) {
-            var cmd = plugin.getConfig().getString("give-command");
+            var cmd = UnitedTrade.instance().getConfig().getString("give-command");
             cmd = cmd.replace("{user}", player.getName());
             cmd = cmd.replace("{amount}", amount + "");
             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), cmd);
             
-            Messenger.sendMessage(player, messageProvider.get("messages.received-money"),
-                    Map.of("amount", String.format("%,.2f", amount)), messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "received-money", String.format("%,.2f", amount));
         }
         return true;
     }

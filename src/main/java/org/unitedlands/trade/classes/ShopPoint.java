@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.unitedlands.UnitedLib;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.utils.annotations.Info;
-import org.unitedlands.utils.Logger;
+import org.unitedlands.utils.United;
 
 import com.google.gson.annotations.Expose;
 
@@ -132,7 +132,7 @@ public class ShopPoint implements InventoryHolder {
 
     public void spawnChest() {
 
-        Logger.log("Spawning chest for shop point " + id, "UnitedTrade");
+        United.logger().info("Spawning chest for shop point " + id);
 
         var block = this.location.getBlock();
         block.setType(Material.TRAPPED_CHEST);
@@ -147,9 +147,9 @@ public class ShopPoint implements InventoryHolder {
         if (template == null)
             return;
 
-        var shopTemplate = UnitedTrade.getInstance().getShopTemplateManager().getShopTemplate(template);
+        var shopTemplate = UnitedTrade.instance().getShopTemplateManager().getShopTemplate(template);
         if (shopTemplate == null) {
-            Logger.logError("Could not find shop template key " + template, "UnitedTrade");
+            United.logger().error("Could not find shop template key " + template);
             return;
         }
 
@@ -158,7 +158,7 @@ public class ShopPoint implements InventoryHolder {
             ItemStack item = itemFactory.getItemStack(shopItem.getMaterial(), shopItem.getUnitSize());
             if (item != null) {
 
-                var currency = UnitedTrade.getInstance().getConfig().getString("messages.currency", "$");
+                var currency = UnitedTrade.instance().getConfig().getString("currency", "$");
                 var miniMessage = MiniMessage.miniMessage();
 
                 var meta = item.getItemMeta();
@@ -170,7 +170,7 @@ public class ShopPoint implements InventoryHolder {
                 meta.lore(lore);
 
                 PersistentDataContainer pdc = meta.getPersistentDataContainer();
-                pdc.set(new NamespacedKey(UnitedTrade.getInstance(), "shopitem.price"), PersistentDataType.DOUBLE,
+                pdc.set(new NamespacedKey(UnitedTrade.instance(), "shopitem.price"), PersistentDataType.DOUBLE,
                         shopItem.getPrice());
 
                 item.setItemMeta(meta);

@@ -15,7 +15,7 @@ import org.unitedlands.factories.items.IItemFactory;
 import org.unitedlands.trade.UnitedTrade;
 import org.unitedlands.trade.classes.MessageProvider;
 import org.unitedlands.trade.utils.TradeOrderBookUtil;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class CheckOrderCommand implements CommandExecutor {
 
@@ -37,8 +37,7 @@ public class CheckOrderCommand implements CommandExecutor {
 
         var book = player.getInventory().getItemInMainHand();
         if (book == null || !TradeOrderBookUtil.isTradeOrderBook(book)) {
-            Messenger.sendMessage(player, messageProvider.get("messages.errors.must-hold-trade-book"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "errors.must-hold-trade-book");
             return false;
         }
 
@@ -46,8 +45,7 @@ public class CheckOrderCommand implements CommandExecutor {
         List<ItemStack> missingItems = TradeOrderBookUtil.getMissingItems(player, requiredItems);
 
         if (missingItems.isEmpty()) {
-            Messenger.sendMessage(player, messageProvider.get("messages.checkorder.success"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "checkorder.success");
         } else {
             List<String> missing = new ArrayList<>();
             for (ItemStack item : missingItems) {
@@ -55,8 +53,7 @@ public class CheckOrderCommand implements CommandExecutor {
                 itemStr += " x" + item.getAmount();
                 missing.add(itemStr);
             }
-            Messenger.sendMessage(player, messageProvider.get("messages.checkorder.missing"),
-                    Map.of("missing", String.join(", ", missing)), messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "checkorder.missing", String.join(", ", missing));
 
         }
 

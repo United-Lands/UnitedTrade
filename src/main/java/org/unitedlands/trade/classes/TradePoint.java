@@ -175,7 +175,7 @@ public class TradePoint {
         var current = currentOrderNo;
         currentOrderNo++;
 
-        UnitedTrade.getInstance().getTradePointManager().saveTradePoint(this);
+        UnitedTrade.instance().getTradePointManager().saveTradePoint(this);
 
         return current;
     }
@@ -267,12 +267,12 @@ public class TradePoint {
 
     public void addPlayerPickupCooldown(UUID playerId) {
         playerPickupCooldowns.put(playerId, System.currentTimeMillis());
-        UnitedTrade.getInstance().getTradePointManager().saveTradePoint(this);
+        UnitedTrade.instance().getTradePointManager().saveTradePoint(this);
     }
 
     public void removePlayerPuickupCooldown(UUID playerId) {
         playerPickupCooldowns.remove(playerId);
-        UnitedTrade.getInstance().getTradePointManager().saveTradePoint(this);
+        UnitedTrade.instance().getTradePointManager().saveTradePoint(this);
     }
 
     public boolean isPlayerOnPickupCooldown(UUID playerId) {
@@ -326,7 +326,7 @@ public class TradePoint {
             Random rnd = new Random();
             String randomTemplate = orderTemplates.get(rnd.nextInt(0, orderTemplates.size()));
 
-            Order order = UnitedTrade.getInstance().getOrderTemplateManager().generateRandomOrder(randomTemplate, this);
+            Order order = UnitedTrade.instance().getOrderTemplateManager().generateRandomOrder(randomTemplate, this);
             if (order != null) {
                 ItemStack book = TradeOrderBookUtil.createBook(order);
                 if (book != null) {
@@ -343,15 +343,15 @@ public class TradePoint {
                     Particle restockParticle = Particle.DUST_PLUME;
                     try {
                         restockParticle = Registry.PARTICLE_TYPE.get(TypedKey.create(RegistryKey.PARTICLE_TYPE,
-                                UnitedTrade.getInstance().getConfig().getString("effects.restock-particle")));
+                                UnitedTrade.instance().getConfig().getString("effects.restock-particle")));
                     } catch (Exception ignore) {
                     }
                     Sound restockSound = Sound.ENTITY_ENDERMITE_DEATH;
                     Double restockVolume = 1.0;
                     try {
                         restockSound = Registry.SOUNDS.get(TypedKey.create(RegistryKey.SOUND_EVENT,
-                                UnitedTrade.getInstance().getConfig().getString("effects.restock-sound")));
-                        restockVolume = UnitedTrade.getInstance().getConfig().getDouble("effects.restock-volume", 1.0);
+                                UnitedTrade.instance().getConfig().getString("effects.restock-sound")));
+                        restockVolume = UnitedTrade.instance().getConfig().getDouble("effects.restock-volume", 1.0);
                     } catch (Exception ignore) {
                     }
 
